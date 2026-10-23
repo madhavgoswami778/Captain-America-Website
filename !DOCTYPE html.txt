@@ -1,0 +1,2727 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CAPTAIN AMERICA // SSR-AVENGERS TACTICAL COMMAND PORTAL</title>
+  
+  <!-- Tailwind CSS 3 CDN -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  
+  <!-- Three.js CDN for WebGL 3D Vibranium Shield -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  
+  <!-- GSAP & ScrollTrigger CDN for Scrollytelling -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  
+  <!-- Lenis Smooth Scrolling Engine CDN -->
+  <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.20/dist/lenis.css">
+  <script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  
+  <!-- Google Fonts: Orbitron, Rajdhani, JetBrains Mono, Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #030712;
+      --tactical-blue: #0284c7;
+      --stealth-cyan: #38bdf8;
+      --stark-red: #ef4444;
+      --vibranium-silver: #f8fafc;
+      --hud-panel: rgba(10, 18, 36, 0.78);
+    }
+    
+    body {
+      background-color: var(--bg-dark);
+      color: #f1f5f9;
+      font-family: 'Inter', -apple-system, sans-serif;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .font-display { font-family: 'Orbitron', sans-serif; }
+    .font-tactical { font-family: 'Rajdhani', sans-serif; }
+    .font-mono-tech { font-family: 'JetBrains Mono', monospace; }
+    
+    /* Background Cybernetic Tactical Grid */
+    .tactical-grid-bg {
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(2, 132, 199, 0.15) 0%, transparent 45%),
+        radial-gradient(circle at 85% 15%, rgba(239, 68, 68, 0.12) 0%, transparent 40%),
+        linear-gradient(rgba(56, 189, 248, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56, 189, 248, 0.035) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+    }
+    
+    /* Holographic Scanline Overlay */
+    .scanlines {
+      background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,0) 50%,
+        rgba(0, 0, 0, 0.28) 50%,
+        rgba(0, 0, 0, 0.28)
+      );
+      background-size: 100% 4px;
+      pointer-events: none;
+    }
+
+    /* Cybernetic Glassmorphism Panels */
+    .hud-panel {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(8, 14, 28, 0.92) 100%);
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      box-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .hud-panel:hover {
+      border-color: rgba(56, 189, 248, 0.55);
+      box-shadow: 0 18px 45px -10px rgba(56, 189, 248, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    /* Corner Bracket HUD Accents */
+    .hud-brackets {
+      position: relative;
+    }
+    .hud-brackets::before,
+    .hud-brackets::after {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+    .hud-brackets::before {
+      top: -1px;
+      left: -1px;
+      border-top: 2px solid #38bdf8;
+      border-left: 2px solid #38bdf8;
+    }
+    .hud-brackets::after {
+      bottom: -1px;
+      right: -1px;
+      border-bottom: 2px solid #ef4444;
+      border-right: 2px solid #ef4444;
+    }
+    .hud-brackets:hover::before {
+      width: 16px;
+      height: 16px;
+      border-color: #38bdf8;
+    }
+    .hud-brackets:hover::after {
+      width: 16px;
+      height: 16px;
+      border-color: #ef4444;
+    }
+
+    /* Glowing Shockwave Animation */
+    @keyframes shockwavePulse {
+      0% { transform: scale(0.6); opacity: 0.9; }
+      50% { transform: scale(1.4); opacity: 0.4; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+    .shockwave-ring {
+      animation: shockwavePulse 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+    }
+
+    /* Radar Scanning Beam */
+    @keyframes radarSweep {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .radar-sweep-beam {
+      transform-origin: center center;
+      animation: radarSweep 3.6s linear infinite;
+    }
+
+    /* Range slider custom styling */
+    input[type="range"] {
+      accent-color: #38bdf8;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #030712;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #0284c7;
+    }
+
+    /* 3D Motion Perspective Setup & Card Depth Layers */
+    .perspective-container {
+      perspective: 1200px;
+    }
+    
+    .hud-panel {
+      transform-style: preserve-3d;
+      will-change: transform;
+      position: relative;
+      transition: transform 0.15s ease-out, border-color 0.25s, box-shadow 0.25s;
+    }
+    
+    /* 3D Dynamic Glare Sheen */
+    .card-3d-glare {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.22), transparent 65%);
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      mix-blend-mode: screen;
+      z-index: 20;
+    }
+    
+    /* 3D Depth Layers inside Cards */
+    .depth-layer-1 {
+      transform: translateZ(16px);
+      transform-style: preserve-3d;
+    }
+    .depth-layer-2 {
+      transform: translateZ(28px);
+      transform-style: preserve-3d;
+    }
+    .depth-layer-3 {
+      transform: translateZ(44px);
+      transform-style: preserve-3d;
+    }
+    
+    /* 3D Perspective Floating Animation */
+    @keyframes float3D {
+      0%, 100% { transform: translateY(0px) rotateX(0deg) rotateY(0deg); }
+      25% { transform: translateY(-8px) rotateX(4deg) rotateY(-3deg); }
+      75% { transform: translateY(6px) rotateX(-3deg) rotateY(4deg); }
+    }
+    .animate-float-3d {
+      animation: float3D 6s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="tactical-grid-bg relative selection:bg-cyan-500 selection:text-slate-950">
+
+  <!-- ================================================================= -->
+  <!-- 1. FULLSCREEN ANTIGRAVITY & PARTICLE FIELD CANVAS                 -->
+  <!-- ================================================================= -->
+  <canvas id="antigravityCanvas" class="fixed inset-0 pointer-events-auto z-0"></canvas>
+  <div class="fixed inset-0 scanlines pointer-events-none z-10 opacity-35"></div>
+
+  <!-- Telemetry Toast HUD Notification -->
+  <div id="tacticalToast" class="fixed bottom-6 right-6 z-50 transform translate-y-28 opacity-0 transition-all duration-300 pointer-events-none max-w-sm">
+    <div class="hud-panel hud-brackets rounded-xl px-4 py-3 border-l-4 border-l-cyan-400 flex items-center gap-3 shadow-2xl">
+      <div class="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 shrink-0">
+        <i data-lucide="shield-alert" class="w-4 h-4"></i>
+      </div>
+      <div>
+        <div id="toastTitle" class="text-[11px] font-mono-tech uppercase tracking-wider text-cyan-300 font-bold">S.H.I.E.L.D. TELEMETRY</div>
+        <div id="toastMessage" class="text-xs text-slate-200 font-medium">System operational.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- 2. STICKY TOP MILITARY TACTICAL NAVIGATION HEADER                 -->
+  <!-- ================================================================= -->
+  <header class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-xl border-b border-cyan-500/25">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="flex items-center justify-between h-16 gap-3">
+        <!-- Brand Logo & Coordinate Tag -->
+        <a href="#heroTrack" class="flex items-center gap-3 text-left group">
+          <div class="relative w-10 h-10 flex items-center justify-center">
+            <svg viewBox="0 0 100 100" class="w-10 h-10 transition-transform duration-700 group-hover:rotate-180 drop-shadow-[0_0_12px_rgba(56,189,248,0.6)]">
+              <circle cx="50" cy="50" r="48" fill="#ef4444" stroke="#f8fafc" stroke-width="2"/>
+              <circle cx="50" cy="50" r="37" fill="#f8fafc"/>
+              <circle cx="50" cy="50" r="26" fill="#ef4444"/>
+              <circle cx="50" cy="50" r="16" fill="#0284c7"/>
+              <polygon points="50,35 53.8,45.2 64.5,45.2 55.9,51.5 59.1,61.8 50,55.5 40.9,61.8 44.1,51.5 35.5,45.2 46.2,45.2" fill="#f8fafc"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-display font-extrabold text-sm sm:text-base tracking-wider text-white">CAPTAIN AMERICA</span>
+              <span class="text-[9px] font-mono-tech uppercase px-2 py-0.5 rounded bg-blue-500/20 text-cyan-300 border border-cyan-400/30">SSR-04071918</span>
+            </div>
+            <p class="text-[10px] font-mono-tech text-slate-400 tracking-widest uppercase">TACTICAL COMMAND PORTAL // DEFCON 1</p>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden lg:flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-xs font-mono-tech uppercase">
+          <a href="#heroTrack" class="px-3.5 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">01. Scrollytelling CAD</a>
+          <a href="#section-command" class="px-3.5 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">02. Command Deck</a>
+          <a href="#section-armory" class="px-3.5 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">03. Armory</a>
+          <a href="#section-kinetic" class="px-3.5 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">04. Kinetic Lab</a>
+          <a href="#section-dossiers" class="px-3.5 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">05. SSR Dossiers</a>
+        </nav>
+
+        <!-- Utility Audio & Tactical Controls -->
+        <div class="flex items-center gap-2">
+          <!-- Audio Toggle -->
+          <button id="soundToggleBtn" type="button" class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-mono-tech text-cyan-300 flex items-center gap-1.5 transition" title="Toggle Web Audio Synthesizer">
+            <i data-lucide="volume-2" id="soundIcon" class="w-4 h-4"></i>
+            <span id="soundLabel" class="hidden sm:inline">SFX: ON</span>
+          </button>
+
+          <!-- Sonar Ping Button -->
+          <button id="sonarPingBtn" type="button" class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-mono-tech text-cyan-300 flex items-center gap-1.5 transition" title="Trigger Sonar Radar Ping">
+            <i data-lucide="radio" class="w-4 h-4 text-cyan-400"></i>
+            <span class="hidden sm:inline">Radar Ping</span>
+          </button>
+
+          <!-- Assemble Protocol Button -->
+          <button id="assembleBtn" type="button" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-red-600 via-rose-500 to-blue-600 hover:from-red-500 hover:to-blue-500 text-white font-display text-xs font-bold tracking-wider uppercase shadow-lg shadow-red-600/30 flex items-center gap-1.5 transition active:scale-95">
+            <i data-lucide="zap" class="w-3.5 h-3.5 fill-current"></i>
+            <span>Assemble</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================================================================= -->
+  <!-- 3. SCROLLYTELLING HERO SECTION (380vh PINNED THREE.JS CONTAINER)  -->
+  <!-- ================================================================= -->
+  <section id="heroTrack" class="relative w-full h-[380vh] z-20">
+    <div id="stickyHeroContainer" class="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
+      
+      <!-- Three.js WebGL 3D Vibranium Shield Canvas -->
+      <canvas id="threeShieldCanvas" class="absolute inset-0 w-full h-full block z-10"></canvas>
+
+      <!-- HUD Crosshair & Targeting Reticle Centerpiece -->
+      <div class="absolute inset-0 pointer-events-none flex items-center justify-center z-20">
+        <div class="w-[340px] sm:w-[460px] h-[340px] sm:h-[460px] rounded-full border border-cyan-500/20 relative flex items-center justify-center">
+          <div class="absolute inset-0 rounded-full border border-blue-500/10 shockwave-ring"></div>
+          <div class="absolute -top-3 px-3 py-0.5 bg-slate-950/80 border border-cyan-500/30 rounded text-[9px] font-mono-tech text-cyan-300 uppercase">
+            TARGET RETICLE // GYRO LOCK: 0.00°
+          </div>
+          <div class="absolute -bottom-3 px-3 py-0.5 bg-slate-950/80 border border-cyan-500/30 rounded text-[9px] font-mono-tech text-slate-400 uppercase">
+            MASS: 12.0 LBS // VIBRANIUM-STEEL COMPOSITE
+          </div>
+        </div>
+      </div>
+
+      <!-- Scrollytelling HUD Floating Telemetry Overlays -->
+      <div class="absolute inset-0 max-w-7xl mx-auto px-4 sm:px-6 pointer-events-none flex flex-col justify-between py-20 z-30">
+        
+        <!-- Top Status Bar & Phase Indicator -->
+        <div class="flex items-center justify-between">
+          <div class="hud-panel rounded-xl px-4 py-2 border border-cyan-500/30">
+            <span class="text-[10px] font-mono-tech text-cyan-400 uppercase tracking-widest block font-bold">SCROLLYTELLING HUD PROTOCOL</span>
+            <div id="scrollPhaseBadge" class="font-display text-sm font-bold text-white flex items-center gap-2 mt-0.5">
+              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+              PHASE 01 // TACTICAL DOCK IDLE
+            </div>
+          </div>
+
+          <div class="hud-panel rounded-xl px-4 py-2 border border-slate-800 text-right">
+            <span class="text-[10px] font-mono-tech text-slate-400 uppercase block">ROTATIONAL VELOCITY</span>
+            <span id="scrollRpmReadout" class="font-display text-sm font-bold text-cyan-300">0.0 RPM</span>
+          </div>
+        </div>
+
+        <!-- Dynamic Phase Overlays (Driven by Scroll Progress) -->
+        <div class="relative w-full">
+          
+          <!-- PHASE 1: IDLE DOCK (0% - 25%) -->
+          <div id="hudPhase1" class="transition-opacity duration-300 max-w-md space-y-3">
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-blue-500/10 text-cyan-300 border border-cyan-400/30 text-xs font-mono-tech uppercase">
+              <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+              <span>PRIMARY DEFENSE WEAPON SYSTEM</span>
+            </div>
+            <h1 class="font-display text-3xl sm:text-5xl font-black text-white leading-tight">
+              VIBRANIUM
+              <span class="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-rose-500">
+                TACTICAL SHIELD
+              </span>
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+              Scroll downward to trigger tactical CAD layer disassembly, ballistic ricochet trajectories, and full combat reassembly.
+            </p>
+            <div class="pt-2 flex items-center gap-2 text-xs font-mono-tech text-cyan-400 animate-bounce">
+              <i data-lucide="arrow-down" class="w-4 h-4"></i>
+              <span>SCROLL TO ENGAGE DISASSEMBLY</span>
+            </div>
+          </div>
+
+          <!-- PHASE 2: EXPLODED CAD VIEW (25% - 55%) -->
+          <div id="hudPhase2" class="opacity-0 transition-opacity duration-300 pointer-events-auto grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="hud-panel hud-brackets rounded-xl p-4 space-y-2 border-l-4 border-l-cyan-400">
+              <span class="text-[10px] font-mono-tech text-cyan-400 uppercase font-bold">NODE 01 // 5-POINT STAR ANCHOR</span>
+              <h3 class="font-display text-base font-bold text-white">Gyroscopic Rotational Core</h3>
+              <p class="text-xs text-slate-300">Milled from Wakandan Vibranium ore, stabilizing rotational inertia during multi-angle rebound throws.</p>
+            </div>
+            <div class="hud-panel hud-brackets rounded-xl p-4 space-y-2 border-l-4 border-l-blue-500">
+              <span class="text-[10px] font-mono-tech text-blue-400 uppercase font-bold">NODE 02 // ACOUSTIC CHAMBER</span>
+              <h3 class="font-display text-base font-bold text-white">Cobalt Harmonic Isolator</h3>
+              <p class="text-xs text-slate-300">Isolates 610.4 Hz impact shockwaves, preventing bone fractures under heavy artillery and Asgardian hammer strikes.</p>
+            </div>
+            <div class="hud-panel hud-brackets rounded-xl p-4 space-y-2 border-l-4 border-l-rose-500">
+              <span class="text-[10px] font-mono-tech text-rose-400 uppercase font-bold">NODE 03 // MOLECULAR BANDS</span>
+              <h3 class="font-display text-base font-bold text-white">Concentric Vibranium-Steel Matrix</h3>
+              <p class="text-xs text-slate-300">Stores up to 350+ Megajoules within sub-atomic bonds and radiates residual force as a radial shockwave.</p>
+            </div>
+            <div class="hud-panel hud-brackets rounded-xl p-4 space-y-2 border-l-4 border-l-amber-500">
+              <span class="text-[10px] font-mono-tech text-amber-400 uppercase font-bold">NODE 04 // RECALL HARNESS</span>
+              <h3 class="font-display text-base font-bold text-white">Neodymium Electromagnetic Dock</h3>
+              <p class="text-xs text-slate-300">Stark arc-pulse micro-transponders enabling 0.12s magnetic forearm docking following complex bank ricochets.</p>
+            </div>
+          </div>
+
+          <!-- PHASE 3: RICOCHET TRAJECTORY (55% - 80%) -->
+          <div id="hudPhase3" class="opacity-0 transition-opacity duration-300 max-w-lg space-y-3">
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-rose-500/10 text-rose-300 border border-rose-400/30 text-xs font-mono-tech uppercase">
+              <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
+              <span>BALLISTIC RICOCHET SIMULATION ACTIVE</span>
+            </div>
+            <h2 class="font-display text-2xl sm:text-4xl font-bold text-white">
+              HIGH-VELOCITY DYNAMICS
+            </h2>
+            <div class="grid grid-cols-2 gap-3 text-center">
+              <div class="hud-panel rounded-lg p-3">
+                <span class="text-[10px] font-mono-tech text-slate-400 uppercase block">Rim Velocity</span>
+                <span class="font-display text-lg font-bold text-rose-400">Mach 3.2</span>
+              </div>
+              <div class="hud-panel rounded-lg p-3">
+                <span class="text-[10px] font-mono-tech text-slate-400 uppercase block">Kinetic Rebound</span>
+                <span class="font-display text-lg font-bold text-cyan-300">98.7% Elastic</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- PHASE 4: ASSEMBLE PROTOCOL (80% - 100%) -->
+          <div id="hudPhase4" class="opacity-0 transition-opacity duration-300 max-w-md space-y-3 text-left">
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-400/30 text-xs font-mono-tech uppercase">
+              <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+              <span>FULL REASSEMBLY COMPLETE</span>
+            </div>
+            <h2 class="font-display text-2xl sm:text-4xl font-bold text-white">
+              BATTLE STANCE ENGAGED
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-300">
+              Vibranium molecular lattice locked. Electromagnetic return array online. Ready for mission deployment.
+            </p>
+          </div>
+        </div>
+
+        <!-- Bottom Scrollytelling Progress Bar -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between text-[10px] font-mono-tech text-slate-400 uppercase">
+            <span>Scroll Engagement Progress</span>
+            <span id="scrollPercentText" class="text-cyan-400 font-bold">0%</span>
+          </div>
+          <div class="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+            <div id="scrollProgressBar" class="h-full bg-gradient-to-r from-blue-600 via-cyan-400 to-rose-500 w-0 rounded-full"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================= -->
+  <!-- 4. SECTION: COMMAND DECK & REAL-TIME BIOMETRICS                   -->
+  <!-- ================================================================= -->
+  <section id="section-command" class="max-w-7xl mx-auto px-4 sm:px-6 py-16 relative z-20 space-y-10">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-800 pb-4">
+      <div>
+        <span class="text-xs font-mono-tech uppercase text-cyan-400 font-bold tracking-wider flex items-center gap-1.5">
+          <i data-lucide="activity" class="w-4 h-4"></i>
+          SSR STRATEGIC COMMAND // REAL-TIME TELEMETRY
+        </span>
+        <h2 class="font-display text-2xl sm:text-4xl font-bold text-white mt-1">
+          COMMAND DECK &amp; BIOMETRICS
+        </h2>
+      </div>
+      <div class="flex items-center gap-2 text-xs font-mono-tech text-slate-400">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        <span>SUPER-SOLDIER SERUM: 99.8% STABILITY</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      <!-- 01: Perimeter Sonar Radar -->
+      <div class="lg:col-span-4 hud-panel hud-brackets rounded-2xl p-5 flex flex-col items-center text-center space-y-4">
+        <div class="flex items-center justify-between w-full border-b border-slate-800 pb-2 depth-layer-1">
+          <span class="text-xs font-mono-tech text-cyan-400 uppercase font-bold flex items-center gap-1">
+            <i data-lucide="disc" class="w-3.5 h-3.5"></i>
+            PERIMETER SONAR RADAR
+          </span>
+          <span class="text-[10px] font-mono-tech text-slate-400">SWEEP 360°</span>
+        </div>
+
+        <!-- Radar Canvas -->
+        <div class="relative w-56 h-56 flex items-center justify-center depth-layer-2">
+          <canvas id="sonarRadarCanvas" width="224" height="224" class="w-full h-full block rounded-full"></canvas>
+          <div class="absolute inset-0 rounded-full border border-cyan-500/20 pointer-events-none"></div>
+          <div class="absolute w-40 h-40 rounded-full border border-blue-500/15 pointer-events-none"></div>
+          <div class="absolute w-20 h-20 rounded-full border border-slate-700/40 pointer-events-none"></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 w-full text-center text-xs font-mono-tech depth-layer-1">
+          <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+            <span class="text-[9px] text-slate-400 block">HOSTILE BLIPS</span>
+            <span class="font-bold text-rose-400">03 DETECTED</span>
+          </div>
+          <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+            <span class="text-[9px] text-slate-400 block">ALLIED QUINJETS</span>
+            <span class="font-bold text-cyan-400">01 IN ROUTE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02: Interactive Three.js 3D Tactical Holo-Globe -->
+      <div class="lg:col-span-4 hud-panel hud-brackets rounded-2xl p-5 flex flex-col items-center text-center space-y-3 relative overflow-hidden">
+        <div class="flex items-center justify-between w-full border-b border-slate-800 pb-2 depth-layer-1">
+          <span class="text-xs font-mono-tech text-cyan-400 uppercase font-bold flex items-center gap-1.5">
+            <i data-lucide="globe" class="w-4 h-4 text-cyan-300"></i>
+            3D GLOBAL THEATER HUD
+          </span>
+          <span class="text-[10px] font-mono-tech text-emerald-400 font-bold animate-pulse">DRAG ORBIT</span>
+        </div>
+
+        <div class="relative w-full h-56 flex items-center justify-center cursor-grab active:cursor-grabbing depth-layer-2 rounded-xl bg-slate-950/60 border border-slate-800/80 overflow-hidden">
+          <canvas id="tacticalGlobeCanvas" class="w-full h-full block"></canvas>
+          <div class="absolute top-2 left-2 px-2 py-0.5 rounded bg-slate-950/80 border border-cyan-500/30 text-[9px] font-mono-tech text-cyan-300 pointer-events-none">
+            360° INTERACTIVE
+          </div>
+          <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between text-[9px] font-mono-tech text-slate-300 bg-slate-950/85 px-2.5 py-1 rounded border border-slate-800/90 pointer-events-none">
+            <span class="text-cyan-400 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+              NODE:
+            </span>
+            <span id="globeTargetCoord" class="font-bold text-white truncate max-w-[150px]">BROOKLYN // 40.67°N</span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between w-full text-[10px] font-mono-tech text-slate-400 depth-layer-1 px-1">
+          <span>GLOBAL BEACONS:</span>
+          <span class="text-cyan-300 font-bold">6 STRATEGIC HUBS</span>
+        </div>
+      </div>
+
+      <!-- 03: Live Oscilloscope Cardiac Monitor & Vital Metrics -->
+      <div class="lg:col-span-4 space-y-4 flex flex-col justify-between">
+        <!-- Steve Rogers Operative Identity Card -->
+        <div class="hud-panel rounded-xl p-3 flex items-center justify-between gap-3 border border-cyan-500/30 depth-layer-1">
+          <div class="flex items-center gap-3">
+            <div class="relative w-12 h-12 rounded-lg overflow-hidden border border-cyan-400/50 shadow-[0_0_12px_rgba(56,189,248,0.35)] shrink-0 bg-slate-900">
+              <img src="images/cap_portrait_suit.jpg"
+                   onerror="this.src='https://static.wikia.nocookie.net/marvelcinematicuniverse/images/d/d7/Steve_Rogers_%28Captain_America%29.jpg';"
+                   alt="Captain Steve Rogers in Suit"
+                   class="w-full h-full object-cover" />
+              <div class="absolute inset-0 scanlines opacity-30 pointer-events-none"></div>
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="font-display text-xs font-bold text-white tracking-wide">CPT. STEVE ROGERS</span>
+                <span class="text-[8px] font-mono-tech px-1.5 py-0.5 rounded bg-blue-500/20 text-cyan-300 border border-cyan-400/30 font-bold">SSR-01</span>
+              </div>
+              <p class="text-[10px] font-mono-tech text-slate-400">107TH INFANTRY // AVENGERS LEAD</p>
+            </div>
+          </div>
+          <span class="text-[9px] font-mono-tech text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded font-bold">
+            READY
+          </span>
+        </div>
+
+        <div class="hud-panel hud-brackets rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2 depth-layer-1">
+            <div class="flex items-center gap-1.5">
+              <i data-lucide="heart" class="w-4 h-4 text-rose-400"></i>
+              <h3 class="font-display text-xs font-bold text-white uppercase">Project Rebirth Vitals</h3>
+            </div>
+            <span class="text-[10px] font-mono-tech text-emerald-400 font-bold">42 BPM</span>
+          </div>
+
+          <!-- Dynamic ECG Oscilloscope -->
+          <div class="bg-slate-950/90 rounded-xl p-2.5 border border-slate-800 depth-layer-2">
+            <canvas id="ecgCanvas" width="400" height="60" class="w-full h-14 block rounded bg-slate-900/60"></canvas>
+          </div>
+
+          <!-- 4 Vital Metric Badges -->
+          <div class="grid grid-cols-2 gap-2 text-center depth-layer-1">
+            <div class="bg-slate-900/70 p-2 rounded-xl border border-slate-800">
+              <div class="font-display font-bold text-base text-white">99.8%</div>
+              <div class="text-[9px] font-mono-tech text-slate-400 uppercase">Serum Stability</div>
+            </div>
+            <div class="bg-slate-900/70 p-2 rounded-xl border border-slate-800">
+              <div class="font-display font-bold text-base text-amber-300">400%</div>
+              <div class="text-[9px] font-mono-tech text-slate-400 uppercase">Metabolism</div>
+            </div>
+            <div class="bg-slate-900/70 p-2 rounded-xl border border-slate-800">
+              <div class="font-display font-bold text-base text-blue-300">0.08s</div>
+              <div class="text-[9px] font-mono-tech text-slate-400 uppercase">Synaptic Reflex</div>
+            </div>
+            <div class="bg-slate-900/70 p-2 rounded-xl border border-slate-800">
+              <div class="font-display font-bold text-base text-emerald-300">0.01 mSv</div>
+              <div class="text-[9px] font-mono-tech text-slate-400 uppercase">Vita-Radiation</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tactical Quote Ticker -->
+        <div id="quoteCard" class="hud-panel rounded-xl p-3.5 flex items-center justify-between gap-3 cursor-pointer hover:border-cyan-400 transition depth-layer-1">
+          <div class="space-y-0.5">
+            <p id="quoteText" class="text-xs italic font-medium text-slate-100">"I can do this all day."</p>
+            <span id="quoteSource" class="text-[9px] font-mono-tech text-cyan-300 block">— Brooklyn Alleyway, 1943</span>
+          </div>
+          <button type="button" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono-tech text-cyan-300 shrink-0">
+            Next &rarr;
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================= -->
+  <!-- 5. SECTION: SUIT ARMORY & DYNAMIC VECTOR CHEST EMBLEM            -->
+  <!-- ================================================================= -->
+  <section id="section-armory" class="max-w-7xl mx-auto px-4 sm:px-6 py-16 relative z-20 space-y-8">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-800 pb-4">
+      <div>
+        <span class="text-xs font-mono-tech uppercase text-cyan-400 font-bold tracking-wider flex items-center gap-1.5">
+          <i data-lucide="layers" class="w-4 h-4"></i>
+          TACTICAL LOCKER // COMBAT UNIFORM REPOSITORY
+        </span>
+        <h2 class="font-display text-2xl sm:text-4xl font-bold text-white mt-1">
+          AVENGERS SUIT MATRIX
+        </h2>
+      </div>
+
+      <!-- Suit Select Buttons -->
+      <div id="suitButtonsContainer" class="flex flex-wrap gap-1.5">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+
+    <!-- Suit Detailed Display -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch hud-panel hud-brackets rounded-2xl p-5 sm:p-7">
+      <!-- 01: Interactive Three.js 3D Shield Holo-Chamber (4 cols) -->
+      <div class="lg:col-span-4 bg-slate-950/90 border border-slate-800 rounded-2xl p-4 flex flex-col items-center text-center relative overflow-hidden space-y-3 depth-layer-2">
+        <div class="flex items-center justify-between w-full border-b border-slate-800/80 pb-2">
+          <span class="text-xs font-mono-tech text-cyan-400 uppercase font-bold flex items-center gap-1.5">
+            <i data-lucide="box" class="w-3.5 h-3.5 text-cyan-300"></i>
+            3D SHIELD HOLO-CHAMBER
+          </span>
+          <span class="text-[9px] font-mono-tech text-slate-400">360° DRAG ORBIT</span>
+        </div>
+
+        <!-- 3D Three.js Armory Canvas -->
+        <div class="relative w-full h-56 rounded-xl overflow-hidden bg-slate-900/40 border border-slate-800/80 cursor-grab active:cursor-grabbing">
+          <canvas id="armory3dCanvas" class="w-full h-full block"></canvas>
+          <div class="absolute top-2 left-2 flex gap-1 z-10">
+            <button id="armoryAutoSpinBtn" type="button" class="px-2 py-0.5 rounded bg-slate-900/80 border border-slate-700 text-[9px] font-mono-tech text-cyan-300 hover:bg-slate-800">
+              SPIN: ON
+            </button>
+            <button id="armoryWireframeBtn" type="button" class="px-2 py-0.5 rounded bg-slate-900/80 border border-slate-700 text-[9px] font-mono-tech text-slate-400 hover:bg-slate-800">
+              CAD WIRE
+            </button>
+          </div>
+          <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2 py-1 bg-slate-950/80 rounded border border-slate-800/90 text-[9px] font-mono-tech z-10 pointer-events-none">
+            <span class="text-slate-400">3D LAYER SEPARATION:</span>
+            <span id="armorySepVal" class="text-cyan-300 font-bold">0.00x</span>
+          </div>
+        </div>
+
+        <!-- Explode View Slider -->
+        <div class="w-full space-y-1">
+          <div class="flex justify-between text-[10px] font-mono-tech text-slate-400">
+            <span>Exploded Layer Breakdown</span>
+            <span class="text-cyan-400 font-bold">Drag to Disassemble</span>
+          </div>
+          <input id="armoryExplodeSlider" type="range" min="0" max="100" value="0" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+        </div>
+
+        <!-- Material Finishes -->
+        <div class="w-full flex items-center justify-center gap-1.5 pt-1">
+          <button type="button" data-mat="standard" class="armory-mat-btn px-2 py-1 rounded text-[9px] font-mono-tech font-bold uppercase bg-blue-600 text-white border border-blue-400">
+            Vibranium
+          </button>
+          <button type="button" data-mat="stealth" class="armory-mat-btn px-2 py-1 rounded text-[9px] font-mono-tech font-bold uppercase bg-slate-900 text-slate-400 border border-slate-800 hover:text-white">
+            Stealth
+          </button>
+          <button type="button" data-mat="nomad" class="armory-mat-btn px-2 py-1 rounded text-[9px] font-mono-tech font-bold uppercase bg-slate-900 text-slate-400 border border-slate-800 hover:text-white">
+            Nomad
+          </button>
+          <button type="button" data-mat="quantum" class="armory-mat-btn px-2 py-1 rounded text-[9px] font-mono-tech font-bold uppercase bg-slate-900 text-slate-400 border border-slate-800 hover:text-white">
+            Quantum
+          </button>
+        </div>
+      </div>
+
+      <!-- 02: Steve Rogers Operative Suit Portrait Showcase (4 cols) -->
+      <div class="lg:col-span-4 bg-slate-950/90 border border-slate-800 rounded-2xl p-4 flex flex-col items-center justify-between text-center relative overflow-hidden space-y-3 depth-layer-2 group">
+        <div class="flex items-center justify-between w-full border-b border-slate-800/80 pb-2">
+          <span class="text-xs font-mono-tech text-cyan-400 uppercase font-bold flex items-center gap-1.5">
+            <i data-lucide="user-check" class="w-3.5 h-3.5 text-cyan-300"></i>
+            OPERATIVE // STEVE ROGERS
+          </span>
+          <span id="suitActiveStatusBadge" class="text-[9px] font-mono-tech px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">
+            DEPLOYMENT READY
+          </span>
+        </div>
+
+        <!-- High-Resolution Portrait with Hologram HUD Glow & Scanlines -->
+        <div class="relative w-full h-72 flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-slate-900/60 via-slate-950/90 to-slate-950 border border-cyan-500/25">
+          <!-- Cyan/Blue Backlight Aura -->
+          <div class="absolute inset-0 bg-radial-gradient from-blue-600/25 via-cyan-500/10 to-transparent pointer-events-none"></div>
+          <div class="absolute inset-0 scanlines opacity-25 pointer-events-none"></div>
+
+          <!-- Steve Rogers Portrait Image in Active Suit -->
+          <img id="steveRogersPortraitImg"
+               src="images/cap_aou_suit.png"
+               alt="Steve Rogers in Suit - Captain America"
+               class="relative z-10 max-h-64 w-auto object-contain drop-shadow-[0_12px_28px_rgba(56,189,248,0.4)] transition-all duration-500 transform group-hover:scale-105"
+               onerror="this.src='https://static.wikia.nocookie.net/marvelcinematicuniverse/images/b/b0/CaptainAmerica-001-AvengersAOU.png';"
+          />
+
+          <!-- Military Telemetry Markers -->
+          <div class="absolute top-2 left-2 text-[8px] font-mono-tech text-cyan-400 pointer-events-none">
+            [CPT-04071918]
+          </div>
+          <div class="absolute top-2 right-2 text-[8px] font-mono-tech text-rose-400 pointer-events-none">
+            LVL-10 CLEARANCE
+          </div>
+
+          <!-- Bottom Active Suit Overlay Readout -->
+          <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between text-[9px] font-mono-tech text-slate-300 bg-slate-950/85 px-2.5 py-1 rounded border border-slate-800/90 pointer-events-none z-20">
+            <span class="text-cyan-300 flex items-center gap-1 font-bold">
+              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+              SUIT:
+            </span>
+            <span id="portraitSuitNameTag" class="text-white font-bold truncate max-w-[130px]">Endgame Scale-Mail</span>
+          </div>
+        </div>
+
+        <div class="w-full space-y-0.5">
+          <span id="suitEraTag" class="text-[9px] font-mono-tech uppercase px-2 py-0.5 rounded bg-blue-500/20 text-cyan-300 border border-cyan-400/30 inline-block">
+            2023 // BATTLE OF EARTH
+          </span>
+          <h3 id="suitName" class="font-display text-sm font-bold text-white mt-1">
+            Endgame Scale-Mail Mark VII
+          </h3>
+          <p id="suitMaterial" class="text-[10px] text-slate-400 truncate">
+            Interlocking Micro-Vibranium Scale Weave + Mjolnir Conduit
+          </p>
+        </div>
+
+        <button id="equipSuitBtn" type="button" class="w-full py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-display text-[11px] font-bold uppercase tracking-wider shadow-lg transition active:scale-95 flex items-center justify-center gap-1.5">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+          <span>Equip Combat Loadout</span>
+        </button>
+      </div>
+
+      <!-- 03: Suit Specifications & Performance Diagnostics (4 cols) -->
+      <div class="lg:col-span-4 space-y-4 flex flex-col justify-between depth-layer-1">
+        <p id="suitDesc" class="text-xs text-slate-200 leading-relaxed bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
+          Engineered by Tony Stark prior to the Time Heist, combining classic comic-accurate titanium-vibranium scale-mail over the upper chest with high-impact kinetic dispersion pads.
+        </p>
+
+        <!-- 4 Stat Progress Bars -->
+        <div class="space-y-2.5">
+          <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+            <div class="flex justify-between text-[11px] font-mono-tech text-slate-300 mb-1">
+              <span>Molecular Weave Density</span>
+              <span id="statWeaveVal" class="text-cyan-400 font-bold">98%</span>
+            </div>
+            <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+              <div id="statWeaveBar" class="h-full bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full transition-all duration-700" style="width: 98%;"></div>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+            <div class="flex justify-between text-[11px] font-mono-tech text-slate-300 mb-1">
+              <span>Tactical Agility &amp; Mobility</span>
+              <span id="statAgilityVal" class="text-cyan-400 font-bold">94%</span>
+            </div>
+            <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+              <div id="statAgilityBar" class="h-full bg-gradient-to-r from-cyan-500 to-teal-400 rounded-full transition-all duration-700" style="width: 94%;"></div>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+            <div class="flex justify-between text-[11px] font-mono-tech text-slate-300 mb-1">
+              <span>Kinetic Dissipation</span>
+              <span id="statKineticVal" class="text-rose-400 font-bold">82%</span>
+            </div>
+            <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+              <div id="statKineticBar" class="h-full bg-gradient-to-r from-rose-600 to-red-400 rounded-full transition-all duration-700" style="width: 82%;"></div>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+            <div class="flex justify-between text-[11px] font-mono-tech text-slate-300 mb-1">
+              <span>EMP / Electronic Hardening</span>
+              <span id="statEmpVal" class="text-amber-400 font-bold">96%</span>
+            </div>
+            <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+              <div id="statEmpBar" class="h-full bg-gradient-to-r from-amber-600 to-yellow-400 rounded-full transition-all duration-700" style="width: 96%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Integrated Gear Pills -->
+        <div class="bg-slate-900/40 p-3 rounded-xl border border-slate-800/80">
+          <span class="text-[10px] font-mono-tech text-slate-400 uppercase tracking-wider block mb-1.5">Integrated Gear Configuration:</span>
+          <div id="suitGearContainer" class="flex flex-wrap gap-1.5">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================= -->
+  <!-- 6. SECTION: KINETIC LAB & BALLISTIC IMPACT SIMULATOR              -->
+  <!-- ================================================================= -->
+  <section id="section-kinetic" class="max-w-7xl mx-auto px-4 sm:px-6 py-16 relative z-20 space-y-8">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-800 pb-4">
+      <div>
+        <span class="text-xs font-mono-tech uppercase text-cyan-400 font-bold tracking-wider flex items-center gap-1.5">
+          <i data-lucide="zap" class="w-4 h-4"></i>
+          SSR ADVANCED RESEARCH // KINETIC LABORATORY
+        </span>
+        <h2 class="font-display text-2xl sm:text-4xl font-bold text-white mt-1">
+          BALLISTIC IMPACT SIMULATOR
+        </h2>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-mono-tech text-slate-400">Preset Threat:</span>
+        <select id="threatPresetSelect" class="bg-slate-900 border border-slate-700 text-cyan-300 text-xs font-mono-tech px-3 py-1.5 rounded-lg focus:outline-none focus:border-cyan-400">
+          <option value="bullet">Hydra 9mm Kinetic Slug</option>
+          <option value="hydra" selected>Tesseract Plasma Blaster</option>
+          <option value="repulsor">Stark Mark VII Repulsor Pulse</option>
+          <option value="mjolnir">Asgardian Mjolnir Impact Strike</option>
+          <option value="thanos">Thanos Double-Edged Blade Cleave</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="hud-panel hud-brackets rounded-2xl p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      <!-- Sliders Left Column -->
+      <div class="lg:col-span-5 space-y-5">
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+          <div class="flex justify-between text-xs font-mono-tech">
+            <span class="text-slate-300">Projectile Velocity</span>
+            <span id="velLabel" class="text-cyan-400 font-bold">1,450 m/s</span>
+          </div>
+          <input id="velSlider" type="range" min="100" max="5000" step="50" value="1450" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[10px] font-mono-tech text-slate-500">
+            <span>100 m/s</span>
+            <span>Mach 4.2</span>
+            <span>5,000 m/s</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+          <div class="flex justify-between text-xs font-mono-tech">
+            <span class="text-slate-300">Projectile Mass</span>
+            <span id="massLabel" class="text-cyan-400 font-bold">12.0 kg</span>
+          </div>
+          <input id="massSlider" type="range" min="0.5" max="100" step="0.5" value="12" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[10px] font-mono-tech text-slate-500">
+            <span>0.5 kg</span>
+            <span>Standard Shell</span>
+            <span>100 kg</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+          <div class="flex justify-between text-xs font-mono-tech">
+            <span class="text-slate-300">Incidence Angle</span>
+            <span id="angleLabel" class="text-cyan-400 font-bold">40°</span>
+          </div>
+          <input id="angleSlider" type="range" min="5" max="85" step="1" value="40" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[10px] font-mono-tech text-slate-500">
+            <span>5° (Glancing)</span>
+            <span>40° Normal</span>
+            <span>85° (Direct)</span>
+          </div>
+        </div>
+
+        <button id="fireImpactBtn" type="button" class="w-full py-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-display text-xs font-bold uppercase tracking-wider shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 transition active:scale-95">
+          <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+          <span>Fire Ballistic Collision Test</span>
+        </button>
+      </div>
+
+      <!-- Simulation Chamber & Metric Cards -->
+      <div class="lg:col-span-7 space-y-4">
+        <div class="relative bg-slate-950 rounded-2xl p-2 border border-slate-800 overflow-hidden">
+          <canvas id="kineticSimCanvas" width="560" height="260" class="w-full h-64 block rounded-xl"></canvas>
+          <div class="absolute top-4 left-4 bg-slate-900/80 px-2.5 py-1 rounded text-[10px] font-mono-tech text-cyan-300 border border-slate-800">
+            3D ISOMETRIC IMPACT ARENA // PERSPECTIVE PHYSICS
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 text-center">
+            <span class="text-[10px] font-mono-tech text-slate-400 uppercase block mb-1">Kinetic Energy</span>
+            <span id="outEnergy" class="font-display font-bold text-base text-rose-400">12.6 MJ</span>
+          </div>
+          <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 text-center">
+            <span class="text-[10px] font-mono-tech text-slate-400 uppercase block mb-1">Absorption</span>
+            <span id="outAbsorption" class="font-display font-bold text-base text-cyan-300">99.98%</span>
+          </div>
+          <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 text-center">
+            <span class="text-[10px] font-mono-tech text-slate-400 uppercase block mb-1">Decibel Spike</span>
+            <span id="outDecibels" class="font-display font-bold text-base text-amber-300">168 dB</span>
+          </div>
+          <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 text-center">
+            <span class="text-[10px] font-mono-tech text-slate-400 uppercase block mb-1">Ricochet Angle</span>
+            <span id="outRicochet" class="font-display font-bold text-xs text-emerald-400">140° (1,435 m/s)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================= -->
+  <!-- 7. SECTION: DECLASSSIFIED SSR & S.H.I.E.L.D. INTEL ARCHIVE         -->
+  <!-- ================================================================= -->
+  <section id="section-dossiers" class="max-w-7xl mx-auto px-4 sm:px-6 py-16 relative z-20 space-y-8">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-800 pb-4">
+      <div>
+        <span class="text-xs font-mono-tech uppercase text-cyan-400 font-bold tracking-wider flex items-center gap-1.5">
+          <i data-lucide="folder-git-2" class="w-4 h-4"></i>
+          SSR &amp; S.H.I.E.L.D. ARCHIVAL CLEARANCE // LEVEL 10
+        </span>
+        <h2 class="font-display text-2xl sm:text-4xl font-bold text-white mt-1">
+          DECLASSIFIED SORTIE ARCHIVE
+        </h2>
+      </div>
+
+      <!-- Era Filters -->
+      <div class="flex flex-wrap gap-1.5 text-xs font-mono-tech uppercase">
+        <button type="button" data-era="all" class="dossier-filter-btn px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold">All Sorties</button>
+        <button type="button" data-era="ww2" class="dossier-filter-btn px-3 py-1.5 rounded-lg bg-slate-900 text-slate-400 border border-slate-800 hover:text-white">1940s SSR</button>
+        <button type="button" data-era="shield" class="dossier-filter-btn px-3 py-1.5 rounded-lg bg-slate-900 text-slate-400 border border-slate-800 hover:text-white">S.H.I.E.L.D.</button>
+        <button type="button" data-era="avengers" class="dossier-filter-btn px-3 py-1.5 rounded-lg bg-slate-900 text-slate-400 border border-slate-800 hover:text-white">Avengers</button>
+      </div>
+    </div>
+
+    <!-- Search Input -->
+    <div class="relative">
+      <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+      <input id="dossierSearchInput" type="text" placeholder="Search mission by operative, location, year, or incident codename..." class="w-full pl-11 pr-4 py-3 bg-slate-950/80 border border-slate-800 rounded-xl text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition">
+    </div>
+
+    <!-- Dossier Cards Grid -->
+    <div id="dossiersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- Populated via JavaScript with Glitch Decoder Text Effect -->
+    </div>
+  </section>
+
+  <!-- Classified Dossier Modal -->
+  <div id="dossierModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div data-lenis-prevent class="hud-panel rounded-2xl max-w-2xl w-full border border-cyan-500/40 p-6 sm:p-8 space-y-6 relative max-h-[90vh] overflow-y-auto shadow-2xl">
+      <button id="closeModalBtn" type="button" class="absolute top-5 right-5 p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <div class="space-y-1 border-b border-slate-800 pb-3 pr-10">
+        <div class="flex items-center gap-2">
+          <span id="modalCode" class="text-xs font-mono-tech text-cyan-400 px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-800">FILE #SSR-1943-06</span>
+          <span id="modalClearance" class="text-xs font-mono-tech text-rose-400 font-bold">CLASSIFIED // LEVEL 10</span>
+        </div>
+        <h3 id="modalTitle" class="font-display text-2xl font-bold text-white mt-1">Project Rebirth: Super-Soldier Transformation</h3>
+        <p id="modalDateLoc" class="text-xs font-mono-tech text-slate-400">JUNE 1943 &bull; BROOKLYN, NY</p>
+      </div>
+      <div class="space-y-4 text-sm text-slate-200 leading-relaxed">
+        <div class="bg-slate-950/70 p-4 rounded-xl border border-slate-800 space-y-1">
+          <h4 class="text-xs font-mono-tech uppercase text-cyan-400 font-bold">Executive Summary:</h4>
+          <p id="modalSummary">Summary text...</p>
+        </div>
+        <div class="bg-slate-950/70 p-4 rounded-xl border border-slate-800 space-y-1">
+          <h4 class="text-xs font-mono-tech uppercase text-cyan-400 font-bold">Tactical Deployment Log:</h4>
+          <p id="modalTactical">Tactical log text...</p>
+        </div>
+        <div>
+          <h4 class="text-xs font-mono-tech uppercase text-slate-400 mb-2">Confirmed Operatives:</h4>
+          <div id="modalOperatives" class="flex flex-wrap gap-2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-900 bg-slate-950/80 py-8 text-center text-xs font-mono-tech text-slate-500 relative z-20">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>SSR ARCHIVE PROTOCOL // HIGH-PERFORMANCE WEBGL ENGINE ACTIVE</span>
+      </div>
+      <div>
+        CAPTAIN AMERICA // AVENGERS TACTICAL COMMAND PORTAL &bull; 60 FPS MOTION
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================================================================= -->
+  <!-- 8. CORE APPLICATION LOGIC & WEBGL SCRIPT ENGINE                    -->
+  <!-- ================================================================= -->
+  <script>
+    (function() {
+      // Initialize Lucide Icons
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+
+      // ===============================================================
+      // A. WEB AUDIO SYNTHESIZER ENGINE (TACTICAL SFX)
+      // ===============================================================
+      let soundEnabled = true;
+      let audioCtx = null;
+
+      function getAudioContext() {
+        if (!soundEnabled) return null;
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) audioCtx = new AudioContextClass();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        return audioCtx;
+      }
+
+      function playSfx(type) {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        if (type === 'clang') {
+          // Metallic inharmonic frequencies (Captain America shield impact)
+          [528, 880, 1320, 1760].forEach((f, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(f, now);
+            gain.gain.setValueAtTime(0.25 / (idx + 1), now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.46);
+          });
+        } else if (type === 'sonar') {
+          // Pure sine sonar radar ping with resonant decay
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(1250, now);
+          osc.frequency.exponentialRampToValueAtTime(1180, now + 0.35);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.76);
+        } else if (type === 'click') {
+          // Tactical UI tick
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(1400, now);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        } else if (type === 'assemble') {
+          // Avengers heroic horn sequence
+          [440, 554.37, 659.25, 880].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sawtooth';
+            const t = now + idx * 0.15;
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.22, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.58);
+          });
+        }
+      }
+
+      function showToast(title, msg) {
+        const toast = document.getElementById('tacticalToast');
+        document.getElementById('toastTitle').textContent = title;
+        document.getElementById('toastMessage').textContent = msg;
+        toast.classList.remove('translate-y-28', 'opacity-0');
+        playSfx('click');
+        setTimeout(() => {
+          toast.classList.add('translate-y-28', 'opacity-0');
+        }, 3600);
+      }
+
+      // Audio Toggle Button
+      const soundBtn = document.getElementById('soundToggleBtn');
+      const soundIcon = document.getElementById('soundIcon');
+      const soundLabel = document.getElementById('soundLabel');
+      soundBtn.addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        if (soundEnabled) {
+          soundIcon.setAttribute('data-lucide', 'volume-2');
+          soundLabel.textContent = 'SFX: ON';
+          showToast('TACTICAL AUDIO', 'Web Audio synthesizer activated.');
+        } else {
+          soundIcon.setAttribute('data-lucide', 'volume-x');
+          soundLabel.textContent = 'SFX: OFF';
+          showToast('TACTICAL AUDIO', 'Muted audio telemetry.');
+        }
+        if (window.lucide) window.lucide.createIcons();
+      });
+
+      // Sonar Ping Button
+      document.getElementById('sonarPingBtn').addEventListener('click', () => {
+        playSfx('sonar');
+        showToast('RADAR SONAR SWEEP', 'Transmitting 360° phosphor beam across sector.');
+      });
+
+      // Assemble Button
+      document.getElementById('assembleBtn').addEventListener('click', () => {
+        playSfx('assemble');
+        showToast('AVENGERS ASSEMBLE', 'Emergency Priority Alpha protocol transmitted.');
+      });
+
+
+      // ===============================================================
+      // B. 60 FPS ANTIGRAVITY & PARTICLE FIELD PHYSICS
+      // ===============================================================
+      const bgCanvas = document.getElementById('antigravityCanvas');
+      const bgCtx = bgCanvas.getContext('2d');
+      let bgParticles = [];
+      let mousePos = { x: -1000, y: -1000, active: false };
+
+      function resizeBgCanvas() {
+        bgCanvas.width = window.innerWidth;
+        bgCanvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resizeBgCanvas);
+      resizeBgCanvas();
+
+      window.addEventListener('mousemove', (e) => {
+        mousePos.x = e.clientX;
+        mousePos.y = e.clientY;
+        mousePos.active = true;
+      });
+      window.addEventListener('touchmove', (e) => {
+        if (e.touches[0]) {
+          mousePos.x = e.touches[0].clientX;
+          mousePos.y = e.touches[0].clientY;
+          mousePos.active = true;
+        }
+      });
+      window.addEventListener('mouseleave', () => { mousePos.active = false; });
+
+      class AntigravityParticle {
+        constructor() {
+          this.reset(true);
+        }
+        reset(randomY = false) {
+          this.x = Math.random() * bgCanvas.width;
+          this.y = randomY ? Math.random() * bgCanvas.height : bgCanvas.height + 20;
+          this.vx = (Math.random() - 0.5) * 0.4;
+          this.vy = -Math.random() * 0.6 - 0.2; // Antigravity: upward buoyancy
+          this.baseVy = this.vy;
+          this.radius = Math.random() * 2 + 0.8;
+          this.alpha = Math.random() * 0.5 + 0.25;
+          const types = ['dot', 'dot', 'cross', 'chevron', 'star', 'coord'];
+          this.type = types[Math.floor(Math.random() * types.length)];
+          this.coordText = `${(Math.random() * 80 + 10).toFixed(1)}°N`;
+          const colors = ['#38bdf8', '#0284c7', '#ef4444', '#f1f5f9'];
+          this.color = colors[Math.floor(Math.random() * colors.length)];
+        }
+        update() {
+          // Upward antigravity float (gravity: -0.04)
+          this.vy += -0.004;
+          if (this.vy < -1.8) this.vy = -1.8;
+
+          // Mouse Repulsion Physics
+          if (mousePos.active) {
+            const dx = this.x - mousePos.x;
+            const dy = this.y - mousePos.y;
+            const dist = Math.hypot(dx, dy);
+            const repelRadius = 160;
+            if (dist < repelRadius && dist > 0) {
+              const force = (repelRadius - dist) / repelRadius;
+              const angle = Math.atan2(dy, dx);
+              this.vx += Math.cos(angle) * force * 0.9;
+              this.vy += Math.sin(angle) * force * 0.9;
+            }
+          }
+
+          // Friction damping
+          this.vx *= 0.96;
+          this.vy = this.vy * 0.96 + this.baseVy * 0.04;
+
+          this.x += this.vx;
+          this.y += this.vy;
+
+          // Respawn at bottom when floating out of top
+          if (this.y < -30) {
+            this.reset(false);
+          }
+          if (this.x < -30) this.x = bgCanvas.width + 30;
+          if (this.x > bgCanvas.width + 30) this.x = -30;
+        }
+        draw(ctx) {
+          ctx.save();
+          ctx.globalAlpha = this.alpha;
+          ctx.fillStyle = this.color;
+          ctx.strokeStyle = this.color;
+
+          if (this.type === 'dot') {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fill();
+          } else if (this.type === 'cross') {
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(this.x - 3, this.y);
+            ctx.lineTo(this.x + 3, this.y);
+            ctx.moveTo(this.x, this.y - 3);
+            ctx.lineTo(this.x, this.y + 3);
+            ctx.stroke();
+          } else if (this.type === 'chevron') {
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(this.x - 2, this.y - 3);
+            ctx.lineTo(this.x + 2, this.y);
+            ctx.lineTo(this.x - 2, this.y + 3);
+            ctx.stroke();
+          } else if (this.type === 'star') {
+            ctx.font = '8px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('★', this.x, this.y);
+          } else if (this.type === 'coord') {
+            ctx.font = '8px "JetBrains Mono", monospace';
+            ctx.fillText(this.coordText, this.x, this.y);
+          }
+          ctx.restore();
+        }
+      }
+
+      // Initialize ~120 particles
+      for (let i = 0; i < 120; i++) {
+        bgParticles.push(new AntigravityParticle());
+      }
+
+      function loopAntigravity() {
+        bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+
+        // Draw proximity connecting holographic lines
+        for (let i = 0; i < bgParticles.length; i++) {
+          const p1 = bgParticles[i];
+          for (let j = i + 1; j < bgParticles.length; j++) {
+            const p2 = bgParticles[j];
+            const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+            if (dist < 75) {
+              bgCtx.save();
+              bgCtx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+              bgCtx.lineWidth = 0.7;
+              bgCtx.beginPath();
+              bgCtx.moveTo(p1.x, p1.y);
+              bgCtx.lineTo(p2.x, p2.y);
+              bgCtx.stroke();
+              bgCtx.restore();
+            }
+          }
+        }
+
+        // Update and draw each particle
+        bgParticles.forEach(p => {
+          p.update();
+          p.draw(bgCtx);
+        });
+
+        requestAnimationFrame(loopAntigravity);
+      }
+      loopAntigravity();
+
+
+      // ===============================================================
+      // C. THREE.JS 3D VIBRANIUM SHIELD & GSAP SCROLLYTELLING
+      // ===============================================================
+      const threeCanvas = document.getElementById('threeShieldCanvas');
+      const renderer = new THREE.WebGLRenderer({ canvas: threeCanvas, alpha: true, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(threeCanvas.clientWidth, threeCanvas.clientHeight);
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, threeCanvas.clientWidth / threeCanvas.clientHeight, 0.1, 100);
+      camera.position.set(0, 0, 7.5);
+
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0x38bdf8, 0.75);
+      scene.add(ambientLight);
+
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.4);
+      keyLight.position.set(5, 5, 8);
+      scene.add(keyLight);
+
+      const rimLight = new THREE.DirectionalLight(0x38bdf8, 1.6);
+      rimLight.position.set(-6, -4, 4);
+      scene.add(rimLight);
+
+      const redAccentLight = new THREE.DirectionalLight(0xef4444, 1.2);
+      redAccentLight.position.set(4, -6, 2);
+      scene.add(redAccentLight);
+
+      // Root Shield Group
+      const shieldRoot = new THREE.Group();
+      scene.add(shieldRoot);
+
+      // Procedural 3D Shield Rings with Metallic Vibranium Shaders
+      function createShieldRing(innerR, outerR, color, metalness = 0.9, roughness = 0.22) {
+        const shape = new THREE.Shape();
+        shape.absarc(0, 0, outerR, 0, Math.PI * 2, false);
+        const hole = new THREE.Path();
+        hole.absarc(0, 0, innerR, 0, Math.PI * 2, true);
+        shape.holes.push(hole);
+
+        const extrudeSettings = { depth: 0.14, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: 0.03, bevelThickness: 0.03 };
+        const geom = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+        const mat = new THREE.MeshStandardMaterial({ color, metalness, roughness });
+        const mesh = new THREE.Mesh(geom, mat);
+        
+        // Add subtle cyan wireframe overlay for CAD exploded view
+        const wireMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0 });
+        const wireMesh = new THREE.Mesh(geom, wireMat);
+        mesh.add(wireMesh);
+        mesh.userData.wireMat = wireMat;
+
+        return mesh;
+      }
+
+      // Outer Red Ring (0.1)
+      const layerOuterRed = createShieldRing(1.85, 2.45, 0xef4444, 0.88, 0.25);
+      // Silver Ring (0.2)
+      const layerSilver = createShieldRing(1.35, 1.85, 0xf1f5f9, 0.96, 0.15);
+      // Inner Red Ring (0.3)
+      const layerInnerRed = createShieldRing(0.85, 1.35, 0xdc2626, 0.88, 0.25);
+      // Blue Center Disc
+      const blueDiscGeom = new THREE.CylinderGeometry(0.85, 0.85, 0.14, 64);
+      blueDiscGeom.rotateX(Math.PI / 2);
+      const blueDiscMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.9, roughness: 0.28 });
+      const layerBlue = new THREE.Mesh(blueDiscGeom, blueDiscMat);
+      const blueWireMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0 });
+      const blueWire = new THREE.Mesh(blueDiscGeom, blueWireMat);
+      layerBlue.add(blueWire);
+      layerBlue.userData.wireMat = blueWireMat;
+
+      // Central 5-Pointed Star
+      function createStarShape(points, innerR, outerR) {
+        const shape = new THREE.Shape();
+        const step = Math.PI / points;
+        for (let i = 0; i < 2 * points; i++) {
+          const r = (i % 2 === 0) ? outerR : innerR;
+          const a = i * step - Math.PI / 2;
+          const x = Math.cos(a) * r;
+          const y = Math.sin(a) * r;
+          if (i === 0) shape.moveTo(x, y);
+          else shape.lineTo(x, y);
+        }
+        shape.closePath();
+        return shape;
+      }
+      const starShape = createStarShape(5, 0.28, 0.65);
+      const starGeom = new THREE.ExtrudeGeometry(starShape, { depth: 0.12, bevelEnabled: true, bevelSize: 0.04, bevelThickness: 0.04 });
+      const starMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, metalness: 0.98, roughness: 0.12 });
+      const layerStar = new THREE.Mesh(starGeom, starMat);
+      layerStar.position.z = 0.08;
+      const starWireMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0 });
+      const starWire = new THREE.Mesh(starGeom, starWireMat);
+      layerStar.add(starWire);
+      layerStar.userData.wireMat = starWireMat;
+
+      shieldRoot.add(layerOuterRed);
+      shieldRoot.add(layerSilver);
+      shieldRoot.add(layerInnerRed);
+      shieldRoot.add(layerBlue);
+      shieldRoot.add(layerStar);
+
+      // 3D Rotating Telemetry Gimbal Ring in Scene
+      const gimbalGeom = new THREE.RingGeometry(3.05, 3.12, 64);
+      const gimbalMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.35, side: THREE.DoubleSide });
+      const gimbalRing = new THREE.Mesh(gimbalGeom, gimbalMat);
+      scene.add(gimbalRing);
+
+      // Hero Canvas Mouse Drag-to-Orbit Interaction
+      let isDraggingHero = false;
+      let heroPrevX = 0;
+      let heroPrevY = 0;
+      let heroUserRotX = 0;
+      let heroUserRotY = 0;
+
+      threeCanvas.style.cursor = 'grab';
+      threeCanvas.addEventListener('mousedown', (e) => {
+        isDraggingHero = true;
+        heroPrevX = e.clientX;
+        heroPrevY = e.clientY;
+        threeCanvas.style.cursor = 'grabbing';
+      });
+      window.addEventListener('mouseup', () => {
+        isDraggingHero = false;
+        threeCanvas.style.cursor = 'grab';
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (!isDraggingHero) return;
+        const dx = e.clientX - heroPrevX;
+        const dy = e.clientY - heroPrevY;
+        heroPrevX = e.clientX;
+        heroPrevY = e.clientY;
+        heroUserRotY += dx * 0.008;
+        heroUserRotX += dy * 0.008;
+      });
+
+      function resizeThree() {
+        const w = threeCanvas.clientWidth;
+        const h = threeCanvas.clientHeight;
+        if (threeCanvas.width !== w || threeCanvas.height !== h) {
+          renderer.setSize(w, h, false);
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+        }
+      }
+
+      // GSAP SCROLLTRIGGER & LENIS ORCHESTRATION
+      gsap.registerPlugin(ScrollTrigger);
+
+      // ===============================================================
+      // LENIS SMOOTH SCROLLING ENGINE & GSAP TICKER INTEGRATION
+      // ===============================================================
+      const lenis = new Lenis({
+        duration: 1.25,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: 'vertical',
+        gestureOrientation: 'vertical',
+        smoothWheel: true,
+        wheelMultiplier: 1.0,
+        touchMultiplier: 1.6,
+        infinite: false,
+      });
+      window.lenis = lenis;
+
+      // Synchronize Lenis scroll updates with GSAP ScrollTrigger
+      lenis.on('scroll', ScrollTrigger.update);
+
+      // Hook Lenis into GSAP's 60/120 FPS high-precision ticker
+      gsap.ticker.add((time) => {
+        lenis.raf(time * 1000);
+      });
+
+      // Disable GSAP lag smoothing to ensure rock-solid frame sync
+      gsap.ticker.lagSmoothing(0);
+
+      // Smooth anchor link scrolling via Lenis momentum
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener('click', function(e) {
+          const href = this.getAttribute('href');
+          if (href && href !== '#' && document.querySelector(href)) {
+            e.preventDefault();
+            lenis.scrollTo(href, {
+              offset: -10,
+              duration: 1.3,
+              easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
+            });
+          }
+        });
+      });
+
+      const hudPhase1 = document.getElementById('hudPhase1');
+      const hudPhase2 = document.getElementById('hudPhase2');
+      const hudPhase3 = document.getElementById('hudPhase3');
+      const hudPhase4 = document.getElementById('hudPhase4');
+      const phaseBadge = document.getElementById('scrollPhaseBadge');
+      const rpmReadout = document.getElementById('scrollRpmReadout');
+      const progressBar = document.getElementById('scrollProgressBar');
+      const percentText = document.getElementById('scrollPercentText');
+
+      let currentScrollProgress = 0;
+      let targetRotZ = 0;
+
+      ScrollTrigger.create({
+        trigger: '#heroTrack',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 1,
+        onUpdate: (self) => {
+          currentScrollProgress = self.progress;
+          const p = self.progress;
+
+          // Progress bar updates
+          const pct = Math.round(p * 100);
+          progressBar.style.width = pct + '%';
+          percentText.textContent = pct + '%';
+
+          // --- STAGE 1: 0% - 25% (IDLE TACTICAL DOCK) ---
+          if (p < 0.25) {
+            const localP = p / 0.25;
+            hudPhase1.style.opacity = (1 - localP * 0.8).toString();
+            hudPhase2.style.opacity = '0';
+            hudPhase3.style.opacity = '0';
+            hudPhase4.style.opacity = '0';
+            phaseBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span> PHASE 01 // TACTICAL DOCK IDLE';
+            rpmReadout.textContent = (localP * 45).toFixed(1) + ' RPM';
+
+            // Neutral shield dock
+            shieldRoot.rotation.x = Math.sin(Date.now() * 0.001) * 0.08;
+            shieldRoot.rotation.y = localP * 0.45;
+            shieldRoot.position.x = 0;
+            shieldRoot.position.y = 0;
+
+            // Exploded layers reset
+            layerStar.position.z = 0.08;
+            layerBlue.position.z = 0;
+            layerInnerRed.position.z = 0;
+            layerSilver.position.z = 0;
+            layerOuterRed.position.z = 0;
+
+            [layerOuterRed, layerSilver, layerInnerRed, layerBlue, layerStar].forEach(l => {
+              if (l.userData.wireMat) l.userData.wireMat.opacity = 0;
+            });
+          }
+          // --- STAGE 2: 25% - 55% (EXPLODED CAD VIEW) ---
+          else if (p >= 0.25 && p < 0.55) {
+            const localP = (p - 0.25) / 0.30;
+            hudPhase1.style.opacity = '0';
+            hudPhase2.style.opacity = (localP < 0.2 ? localP * 5 : (localP > 0.8 ? (1 - localP) * 5 : 1)).toString();
+            hudPhase3.style.opacity = '0';
+            hudPhase4.style.opacity = '0';
+            phaseBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span> PHASE 02 // CAD EXPLODED VIEW';
+            rpmReadout.textContent = (45 + localP * 120).toFixed(1) + ' RPM';
+
+            // Oblique CAD perspective angle
+            shieldRoot.rotation.x = 0.52;
+            shieldRoot.rotation.y = 0.95 + localP * 0.35;
+            shieldRoot.position.x = 0;
+            shieldRoot.position.y = 0;
+
+            // Smooth Z-layer separation
+            const sep = Math.sin(localP * Math.PI) * 1.55;
+            layerStar.position.z = 0.08 + sep * 1.6;
+            layerBlue.position.z = sep * 0.8;
+            layerInnerRed.position.z = 0;
+            layerSilver.position.z = -sep * 0.8;
+            layerOuterRed.position.z = -sep * 1.6;
+
+            // Fade in holographic wireframe lines
+            const wireAlpha = Math.min(0.85, sep * 0.8);
+            [layerOuterRed, layerSilver, layerInnerRed, layerBlue, layerStar].forEach(l => {
+              if (l.userData.wireMat) l.userData.wireMat.opacity = wireAlpha;
+            });
+          }
+          // --- STAGE 3: 55% - 80% (BALLISTIC RICOCHET) ---
+          else if (p >= 0.55 && p < 0.80) {
+            const localP = (p - 0.55) / 0.25;
+            hudPhase1.style.opacity = '0';
+            hudPhase2.style.opacity = '0';
+            hudPhase3.style.opacity = (localP < 0.2 ? localP * 5 : (localP > 0.8 ? (1 - localP) * 5 : 1)).toString();
+            hudPhase4.style.opacity = '0';
+            phaseBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span> PHASE 03 // BALLISTIC RICOCHET';
+            rpmReadout.textContent = (350 + Math.sin(localP * Math.PI) * 1450).toFixed(0) + ' RPM';
+
+            // Layers snap together
+            layerStar.position.z = 0.08;
+            layerBlue.position.z = 0;
+            layerInnerRed.position.z = 0;
+            layerSilver.position.z = 0;
+            layerOuterRed.position.z = 0;
+
+            // Dynamic S-curve ricochet trajectory across viewport
+            shieldRoot.rotation.x = 0.25;
+            shieldRoot.rotation.y = localP * Math.PI * 4;
+            shieldRoot.rotation.z += 0.22;
+            shieldRoot.position.x = Math.sin(localP * Math.PI * 3.5) * 2.2;
+            shieldRoot.position.y = Math.cos(localP * Math.PI * 2.5) * 1.2;
+
+            [layerOuterRed, layerSilver, layerInnerRed, layerBlue, layerStar].forEach(l => {
+              if (l.userData.wireMat) l.userData.wireMat.opacity = 0;
+            });
+          }
+          // --- STAGE 4: 80% - 100% (BATTLE STANCE REASSEMBLY) ---
+          else {
+            const localP = (p - 0.80) / 0.20;
+            hudPhase1.style.opacity = '0';
+            hudPhase2.style.opacity = '0';
+            hudPhase3.style.opacity = '0';
+            hudPhase4.style.opacity = (localP * 1.2).toString();
+            phaseBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> PHASE 04 // ASSEMBLE PROTOCOL READY';
+            rpmReadout.textContent = ((1 - localP) * 280).toFixed(0) + ' RPM';
+
+            // Final snap into center battle-ready stance
+            shieldRoot.position.x = 0;
+            shieldRoot.position.y = 0;
+            shieldRoot.rotation.x = (1 - localP) * 0.1;
+            shieldRoot.rotation.y = 0;
+            shieldRoot.rotation.z = (1 - localP) * 0.5;
+
+            layerStar.position.z = 0.08;
+            layerBlue.position.z = 0;
+            layerInnerRed.position.z = 0;
+            layerSilver.position.z = 0;
+            layerOuterRed.position.z = 0;
+          }
+        }
+      });
+
+      // Three.js Render Loop (60 FPS with tab visibility throttle)
+      function renderThree() {
+        if (!document.hidden) {
+          resizeThree();
+
+          // Rotate 3D Gimbal Telemetry Ring
+          gimbalRing.rotation.z += 0.004;
+
+          // Subtle gyro & user drag rotation response
+          if (mousePos.active || isDraggingHero) {
+            const normX = (mousePos.x / window.innerWidth - 0.5) * 0.35 + heroUserRotY;
+            const normY = -(mousePos.y / window.innerHeight - 0.5) * 0.35 + heroUserRotX;
+            shieldRoot.rotation.y += (normX - shieldRoot.rotation.y) * 0.08;
+            shieldRoot.rotation.x += (normY - shieldRoot.rotation.x) * 0.08;
+          }
+
+          renderer.render(scene, camera);
+        }
+        requestAnimationFrame(renderThree);
+      }
+      renderThree();
+
+
+      // ===============================================================
+      // C-2. THREE.JS 3D TACTICAL HOLO-GLOBE ENGINE
+      // ===============================================================
+      const globeCanvas = document.getElementById('tacticalGlobeCanvas');
+      let globeRenderer, globeScene, globeCamera, globeRoot;
+      const globeBeacons = [];
+
+      if (globeCanvas) {
+        globeRenderer = new THREE.WebGLRenderer({ canvas: globeCanvas, alpha: true, antialias: true });
+        globeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        globeRenderer.setSize(globeCanvas.clientWidth, globeCanvas.clientHeight);
+
+        globeScene = new THREE.Scene();
+        globeCamera = new THREE.PerspectiveCamera(45, globeCanvas.clientWidth / globeCanvas.clientHeight, 0.1, 100);
+        globeCamera.position.set(0, 0, 5.2);
+
+        globeRoot = new THREE.Group();
+        globeScene.add(globeRoot);
+
+        // Holographic Latitude/Longitude Wireframe Sphere
+        const sphereGeom = new THREE.SphereGeometry(1.65, 24, 18);
+        const sphereMat = new THREE.MeshBasicMaterial({ color: 0x0284c7, wireframe: true, transparent: true, opacity: 0.35 });
+        const sphereMesh = new THREE.Mesh(sphereGeom, sphereMat);
+        globeRoot.add(sphereMesh);
+
+        // Core Occlusion Sphere
+        const coreGeom = new THREE.SphereGeometry(1.60, 32, 32);
+        const coreMat = new THREE.MeshBasicMaterial({ color: 0x030712, transparent: true, opacity: 0.94 });
+        globeRoot.add(new THREE.Mesh(coreGeom, coreMat));
+
+        // Outer Rotating Orbit Ring
+        const orbitGeom = new THREE.RingGeometry(2.15, 2.22, 64);
+        const orbitMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.45, side: THREE.DoubleSide });
+        const orbitMesh = new THREE.Mesh(orbitGeom, orbitMat);
+        orbitMesh.rotation.x = Math.PI / 3;
+        globeRoot.add(orbitMesh);
+
+        // 6 Strategic SSR Mission Nodes
+        const theaterNodes = [
+          { name: 'BROOKLYN', lat: 40.67, lon: -73.94, desc: 'Project Rebirth Facility' },
+          { name: 'KRAUSBERG', lat: 47.51, lon: 14.55, desc: 'Hydra Munitions Base' },
+          { name: 'ARCTIC', lat: 71.29, lon: -156.78, desc: 'Valkyrie Cryo Crash Site' },
+          { name: 'MANHATTAN', lat: 40.71, lon: -74.00, desc: 'Battle of New York' },
+          { name: 'WASHINGTON', lat: 38.90, lon: -77.03, desc: 'Triskelion Insight Override' },
+          { name: 'WAKANDA', lat: 0.34, lon: 32.58, desc: 'Vibranium Resource Reserve' }
+        ];
+
+        const coordLabel = document.getElementById('globeTargetCoord');
+
+        theaterNodes.forEach((node, idx) => {
+          const phi = (90 - node.lat) * (Math.PI / 180);
+          const theta = (node.lon + 180) * (Math.PI / 180);
+          const r = 1.66;
+          const x = -(r * Math.sin(phi) * Math.cos(theta));
+          const z = (r * Math.sin(phi) * Math.sin(theta));
+          const y = (r * Math.cos(phi));
+
+          const pinGeom = new THREE.SphereGeometry(0.06, 12, 12);
+          const pinMat = new THREE.MeshBasicMaterial({ color: idx === 0 ? 0x38bdf8 : 0xef4444 });
+          const pinMesh = new THREE.Mesh(pinGeom, pinMat);
+          pinMesh.position.set(x, y, z);
+          globeRoot.add(pinMesh);
+
+          // Pulsing Beacon Halo
+          const haloGeom = new THREE.RingGeometry(0.08, 0.14, 16);
+          const haloMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, side: THREE.DoubleSide, transparent: true, opacity: 0.8 });
+          const haloMesh = new THREE.Mesh(haloGeom, haloMat);
+          haloMesh.position.set(x * 1.02, y * 1.02, z * 1.02);
+          haloMesh.lookAt(0, 0, 0);
+          globeRoot.add(haloMesh);
+
+          globeBeacons.push({ mesh: pinMesh, halo: haloMesh, node });
+        });
+
+        // Drag to Orbit Globe
+        let isGlobeDragging = false;
+        let globePrevX = 0;
+        let globePrevY = 0;
+        let globeVelX = 0.003;
+        let globeVelY = 0;
+
+        globeCanvas.addEventListener('mousedown', (e) => {
+          isGlobeDragging = true;
+          globePrevX = e.clientX;
+          globePrevY = e.clientY;
+        });
+        window.addEventListener('mouseup', () => { isGlobeDragging = false; });
+        window.addEventListener('mousemove', (e) => {
+          if (!isGlobeDragging) return;
+          const dx = e.clientX - globePrevX;
+          const dy = e.clientY - globePrevY;
+          globePrevX = e.clientX;
+          globePrevY = e.clientY;
+          globeVelX = dx * 0.008;
+          globeVelY = dy * 0.008;
+          globeRoot.rotation.y += globeVelX;
+          globeRoot.rotation.x += globeVelY;
+        });
+
+        // Touch support
+        globeCanvas.addEventListener('touchstart', (e) => {
+          if (e.touches[0]) {
+            isGlobeDragging = true;
+            globePrevX = e.touches[0].clientX;
+            globePrevY = e.touches[0].clientY;
+          }
+        });
+        window.addEventListener('touchend', () => { isGlobeDragging = false; });
+        window.addEventListener('touchmove', (e) => {
+          if (!isGlobeDragging || !e.touches[0]) return;
+          const dx = e.touches[0].clientX - globePrevX;
+          const dy = e.touches[0].clientY - globePrevY;
+          globePrevX = e.touches[0].clientX;
+          globePrevY = e.touches[0].clientY;
+          globeVelX = dx * 0.008;
+          globeVelY = dy * 0.008;
+          globeRoot.rotation.y += globeVelX;
+          globeRoot.rotation.x += globeVelY;
+        });
+
+        let beaconCycle = 0;
+        function renderGlobe() {
+          if (!document.hidden && globeCanvas.offsetParent !== null) {
+            const w = globeCanvas.clientWidth;
+            const h = globeCanvas.clientHeight;
+            if (globeCanvas.width !== w || globeCanvas.height !== h) {
+              globeRenderer.setSize(w, h, false);
+              globeCamera.aspect = w / h;
+              globeCamera.updateProjectionMatrix();
+            }
+
+            if (!isGlobeDragging) {
+              globeRoot.rotation.y += 0.005;
+              orbitMesh.rotation.z += 0.008;
+            }
+
+            // Beacon pulsing
+            const pulse = (Math.sin(Date.now() * 0.006) + 1) * 0.5;
+            globeBeacons.forEach((b, i) => {
+              b.halo.scale.setScalar(1 + pulse * 0.8);
+              b.halo.material.opacity = 0.8 - pulse * 0.5;
+            });
+
+            // Cycle active target readout
+            beaconCycle++;
+            if (beaconCycle % 240 === 0 && coordLabel) {
+              const activeNode = theaterNodes[(beaconCycle / 240) % theaterNodes.length];
+              coordLabel.textContent = `${activeNode.name} // ${activeNode.lat.toFixed(1)}°N`;
+            }
+
+            globeRenderer.render(globeScene, globeCamera);
+          }
+          requestAnimationFrame(renderGlobe);
+        }
+        renderGlobe();
+      }
+
+
+      // ===============================================================
+      // C-3. THREE.JS 3D ARMORY HOLO-CHAMBER ENGINE
+      // ===============================================================
+      const armoryCanvas = document.getElementById('armory3dCanvas');
+      let armoryRenderer, armoryScene, armoryCamera, armoryShieldRoot;
+      let armoryLayers = [];
+      let armoryAutoSpin = true;
+      let armoryWireMode = false;
+
+      if (armoryCanvas) {
+        armoryRenderer = new THREE.WebGLRenderer({ canvas: armoryCanvas, alpha: true, antialias: true });
+        armoryRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        armoryRenderer.setSize(armoryCanvas.clientWidth, armoryCanvas.clientHeight);
+
+        armoryScene = new THREE.Scene();
+        armoryCamera = new THREE.PerspectiveCamera(45, armoryCanvas.clientWidth / armoryCanvas.clientHeight, 0.1, 100);
+        armoryCamera.position.set(0, 0, 6.8);
+
+        // Lighting
+        const armAmbient = new THREE.AmbientLight(0x38bdf8, 0.8);
+        armoryScene.add(armAmbient);
+        const armKey = new THREE.DirectionalLight(0xffffff, 1.4);
+        armKey.position.set(5, 5, 6);
+        armoryScene.add(armKey);
+        const armRim = new THREE.DirectionalLight(0x38bdf8, 1.2);
+        armRim.position.set(-5, -3, 4);
+        armoryScene.add(armRim);
+
+        armoryShieldRoot = new THREE.Group();
+        armoryScene.add(armoryShieldRoot);
+
+        // Build procedural 5-layer shield for armory
+        const armOuter = createShieldRing(1.85, 2.45, 0xef4444, 0.88, 0.25);
+        const armSilver = createShieldRing(1.35, 1.85, 0xf1f5f9, 0.96, 0.15);
+        const armInner = createShieldRing(0.85, 1.35, 0xdc2626, 0.88, 0.25);
+        
+        const armBlueGeom = new THREE.CylinderGeometry(0.85, 0.85, 0.14, 64);
+        armBlueGeom.rotateX(Math.PI / 2);
+        const armBlue = new THREE.Mesh(armBlueGeom, new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.9, roughness: 0.28 }));
+        const armBlueWire = new THREE.Mesh(armBlueGeom, new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0 }));
+        armBlue.add(armBlueWire);
+        armBlue.userData.wireMat = armBlueWire;
+
+        const armStarShape = createStarShape(5, 0.28, 0.65);
+        const armStarGeom = new THREE.ExtrudeGeometry(armStarShape, { depth: 0.12, bevelEnabled: true, bevelSize: 0.04, bevelThickness: 0.04 });
+        const armStar = new THREE.Mesh(armStarGeom, new THREE.MeshStandardMaterial({ color: 0xf8fafc, metalness: 0.98, roughness: 0.12 }));
+        armStar.position.z = 0.08;
+        const armStarWire = new THREE.Mesh(armStarGeom, new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0 }));
+        armStar.add(armStarWire);
+        armStar.userData.wireMat = armStarWire;
+
+        armoryLayers = [armOuter, armSilver, armInner, armBlue, armStar];
+        armoryLayers.forEach(l => armoryShieldRoot.add(l));
+
+        // Armory Drag Orbit
+        let isArmoryDrag = false;
+        let armPrevX = 0;
+        let armPrevY = 0;
+        armoryCanvas.addEventListener('mousedown', (e) => {
+          isArmoryDrag = true;
+          armPrevX = e.clientX;
+          armPrevY = e.clientY;
+        });
+        window.addEventListener('mouseup', () => { isArmoryDrag = false; });
+        window.addEventListener('mousemove', (e) => {
+          if (!isArmoryDrag) return;
+          const dx = e.clientX - armPrevX;
+          const dy = e.clientY - armPrevY;
+          armPrevX = e.clientX;
+          armPrevY = e.clientY;
+          armoryShieldRoot.rotation.y += dx * 0.01;
+          armoryShieldRoot.rotation.x += dy * 0.01;
+        });
+
+        // Touch support
+        armoryCanvas.addEventListener('touchstart', (e) => {
+          if (e.touches[0]) {
+            isArmoryDrag = true;
+            armPrevX = e.touches[0].clientX;
+            armPrevY = e.touches[0].clientY;
+          }
+        });
+        window.addEventListener('touchend', () => { isArmoryDrag = false; });
+        window.addEventListener('touchmove', (e) => {
+          if (!isArmoryDrag || !e.touches[0]) return;
+          const dx = e.touches[0].clientX - armPrevX;
+          const dy = e.touches[0].clientY - armPrevY;
+          armPrevX = e.touches[0].clientX;
+          armPrevY = e.touches[0].clientY;
+          armoryShieldRoot.rotation.y += dx * 0.01;
+          armoryShieldRoot.rotation.x += dy * 0.01;
+        });
+
+        // Explode Slider Listener
+        const explodeSlider = document.getElementById('armoryExplodeSlider');
+        const sepReadout = document.getElementById('armorySepVal');
+        if (explodeSlider) {
+          explodeSlider.addEventListener('input', (e) => {
+            const val = Number(e.target.value) / 100;
+            if (sepReadout) sepReadout.textContent = (val * 1.8).toFixed(2) + 'x';
+            armStar.position.z = 0.08 + val * 1.5;
+            armBlue.position.z = val * 0.8;
+            armInner.position.z = 0;
+            armSilver.position.z = -val * 0.8;
+            armOuter.position.z = -val * 1.5;
+          });
+        }
+
+        // Auto spin toggle
+        const spinBtn = document.getElementById('armoryAutoSpinBtn');
+        if (spinBtn) {
+          spinBtn.addEventListener('click', () => {
+            playSfx('click');
+            armoryAutoSpin = !armoryAutoSpin;
+            spinBtn.textContent = armoryAutoSpin ? 'SPIN: ON' : 'SPIN: OFF';
+            spinBtn.className = armoryAutoSpin ? 'px-2 py-0.5 rounded bg-slate-900/80 border border-slate-700 text-[9px] font-mono-tech text-cyan-300 hover:bg-slate-800' : 'px-2 py-0.5 rounded bg-slate-900/80 border border-slate-700 text-[9px] font-mono-tech text-slate-500 hover:bg-slate-800';
+          });
+        }
+
+        // CAD Wireframe toggle
+        const wireBtn = document.getElementById('armoryWireframeBtn');
+        if (wireBtn) {
+          wireBtn.addEventListener('click', () => {
+            playSfx('click');
+            armoryWireMode = !armoryWireMode;
+            wireBtn.textContent = armoryWireMode ? 'CAD: ON' : 'CAD WIRE';
+            wireBtn.className = armoryWireMode ? 'px-2 py-0.5 rounded bg-blue-600 border border-blue-400 text-[9px] font-mono-tech text-white font-bold' : 'px-2 py-0.5 rounded bg-slate-900/80 border border-slate-700 text-[9px] font-mono-tech text-slate-400 hover:bg-slate-800';
+            armoryLayers.forEach(l => {
+              if (l.userData.wireMat) l.userData.wireMat.opacity = armoryWireMode ? 0.85 : 0;
+            });
+          });
+        }
+
+        // Material Finishes
+        document.querySelectorAll('.armory-mat-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            playSfx('click');
+            document.querySelectorAll('.armory-mat-btn').forEach(b => {
+              b.className = 'armory-mat-btn px-2 py-1 rounded text-[9px] font-mono-tech font-bold uppercase bg-slate-900 text-slate-400 border border-slate-800 hover:text-white';
+            });
+            btn.className = 'armory-mat-btn px-2 py-1 rounded text-[9px] font-mono-tech font-bold uppercase bg-blue-600 text-white border border-blue-400 shadow-lg shadow-blue-500/30';
+            const m = btn.getAttribute('data-mat');
+
+            if (m === 'standard') {
+              armOuter.material.color.setHex(0xef4444);
+              armSilver.material.color.setHex(0xf1f5f9);
+              armInner.material.color.setHex(0xdc2626);
+              armBlue.material.color.setHex(0x0284c7);
+              armStar.material.color.setHex(0xf8fafc);
+            } else if (m === 'stealth') {
+              armOuter.material.color.setHex(0x0f172a);
+              armSilver.material.color.setHex(0x64748b);
+              armInner.material.color.setHex(0x1e293b);
+              armBlue.material.color.setHex(0x0284c7);
+              armStar.material.color.setHex(0x38bdf8);
+            } else if (m === 'nomad') {
+              armOuter.material.color.setHex(0x334155);
+              armSilver.material.color.setHex(0x475569);
+              armInner.material.color.setHex(0x1e293b);
+              armBlue.material.color.setHex(0x0f172a);
+              armStar.material.color.setHex(0x94a3b8);
+            } else if (m === 'quantum') {
+              armOuter.material.color.setHex(0x0284c7);
+              armSilver.material.color.setHex(0x38bdf8);
+              armInner.material.color.setHex(0x0284c7);
+              armBlue.material.color.setHex(0x38bdf8);
+              armStar.material.color.setHex(0xffffff);
+            }
+          });
+        });
+
+        function renderArmory() {
+          if (!document.hidden && armoryCanvas.offsetParent !== null) {
+            const w = armoryCanvas.clientWidth;
+            const h = armoryCanvas.clientHeight;
+            if (armoryCanvas.width !== w || armoryCanvas.height !== h) {
+              armoryRenderer.setSize(w, h, false);
+              armoryCamera.aspect = w / h;
+              armoryCamera.updateProjectionMatrix();
+            }
+
+            if (armoryAutoSpin && !isArmoryDrag) {
+              armoryShieldRoot.rotation.y += 0.008;
+            }
+
+            armoryRenderer.render(armoryScene, armoryCamera);
+          }
+          requestAnimationFrame(renderArmory);
+        }
+        renderArmory();
+      }
+
+
+      // ===============================================================
+      // D. SONAR RADAR CANVAS SWEEP & LIVE ECG OSCILLOSCOPE
+      // ===============================================================
+      const radarCanvas = document.getElementById('sonarRadarCanvas');
+      const rCtx = radarCanvas.getContext('2d');
+      let radarAngle = 0;
+      const radarTargets = [
+        { r: 75, angle: 0.8, type: 'hostile', label: 'HYDRA' },
+        { r: 105, angle: 2.4, type: 'allied', label: 'QUINJET' },
+        { r: 50, angle: 4.2, type: 'hostile', label: 'DRONE' },
+      ];
+
+      function drawRadar() {
+        rCtx.clearRect(0, 0, radarCanvas.width, radarCanvas.height);
+        const cx = radarCanvas.width / 2;
+        const cy = radarCanvas.height / 2;
+
+        // Background circles
+        rCtx.strokeStyle = 'rgba(56, 189, 248, 0.15)';
+        rCtx.lineWidth = 1;
+        [35, 70, 105].forEach(radius => {
+          rCtx.beginPath();
+          rCtx.arc(cx, cy, radius, 0, Math.PI * 2);
+          rCtx.stroke();
+        });
+
+        // Crosshairs
+        rCtx.beginPath();
+        rCtx.moveTo(cx, 10); rCtx.lineTo(cx, radarCanvas.height - 10);
+        rCtx.moveTo(10, cy); rCtx.lineTo(radarCanvas.width - 10, cy);
+        rCtx.stroke();
+
+        // Rotating phosphor sweep beam
+        rCtx.save();
+        rCtx.translate(cx, cy);
+        rCtx.rotate(radarAngle);
+        const grad = rCtx.createLinearGradient(0, 0, 115, 0);
+        grad.addColorStop(0, 'rgba(56, 189, 248, 0.6)');
+        grad.addColorStop(1, 'rgba(56, 189, 248, 0)');
+        rCtx.fillStyle = grad;
+        rCtx.beginPath();
+        rCtx.moveTo(0, 0);
+        rCtx.arc(0, 0, 115, 0, -0.4, true);
+        rCtx.fill();
+        rCtx.restore();
+
+        // Draw blips
+        radarTargets.forEach(t => {
+          const tx = cx + Math.cos(t.angle) * t.r;
+          const ty = cy + Math.sin(t.angle) * t.r;
+          rCtx.fillStyle = t.type === 'hostile' ? '#ef4444' : '#38bdf8';
+          rCtx.shadowColor = rCtx.fillStyle;
+          rCtx.shadowBlur = 6;
+          rCtx.beginPath();
+          rCtx.arc(tx, ty, 3.5, 0, Math.PI * 2);
+          rCtx.fill();
+        });
+
+        radarAngle = (radarAngle + 0.035) % (Math.PI * 2);
+        requestAnimationFrame(drawRadar);
+      }
+      drawRadar();
+
+      // Live Oscilloscope ECG Heartbeat Loop
+      const ecgCanvas = document.getElementById('ecgCanvas');
+      const ecgCtx = ecgCanvas.getContext('2d');
+      let ecgOffset = 0;
+
+      function drawEcg() {
+        ecgCtx.clearRect(0, 0, ecgCanvas.width, ecgCanvas.height);
+        ecgCtx.strokeStyle = '#38bdf8';
+        ecgCtx.lineWidth = 1.8;
+        ecgCtx.shadowBlur = 6;
+        ecgCtx.shadowColor = '#38bdf8';
+        ecgCtx.beginPath();
+
+        const cy = ecgCanvas.height / 2;
+        for (let x = 0; x < ecgCanvas.width; x++) {
+          const cycle = (x + ecgOffset) % 130;
+          let y = cy;
+          if (cycle > 20 && cycle < 35) y -= Math.sin(((cycle - 20) / 15) * Math.PI) * 4;
+          else if (cycle >= 45 && cycle < 48) y += 3;
+          else if (cycle >= 48 && cycle < 56) y -= Math.sin(((cycle - 48) / 8) * Math.PI) * 24;
+          else if (cycle >= 56 && cycle < 60) y += 5;
+          else if (cycle >= 75 && cycle < 95) y -= Math.sin(((cycle - 75) / 20) * Math.PI) * 6;
+
+          if (x === 0) ecgCtx.moveTo(x, y);
+          else ecgCtx.lineTo(x, y);
+        }
+        ecgCtx.stroke();
+        ecgOffset = (ecgOffset + 1.8) % 1300;
+        requestAnimationFrame(drawEcg);
+      }
+      drawEcg();
+
+
+      // ===============================================================
+      // E. SUIT ARMORY & DYNAMIC VECTOR CHEST EMBLEM
+      // ===============================================================
+      const suitMatrix = {
+        endgame: {
+          name: 'Endgame Scale-Mail Mark VII',
+          era: '2023 // BATTLE OF EARTH',
+          material: 'Interlocking Micro-Vibranium Scale Weave + Mjolnir Resonance Conduit',
+          desc: 'Engineered by Tony Stark prior to the Time Heist, combining classic comic-accurate titanium-vibranium scale-mail over the upper chest with high-impact kinetic dispersion pads.',
+          weave: 98, agility: 94, kinetic: 82, emp: 96,
+          image: 'images/cap_aou_suit.png',
+          fallbackImage: 'https://static.wikia.nocookie.net/marvelcinematicuniverse/images/b/b0/CaptainAmerica-001-AvengersAOU.png',
+          gear: ['Vibranium Shield', 'Mjolnir Lightning Routing', 'Time-Space GPS', 'Scale Pauldrons']
+        },
+        stealth: {
+          name: 'S.T.R.I.K.E. Nocturnal Stealth Suit',
+          era: '2014 // OPERATION LEMURIAN STAR',
+          material: 'Matte Navy Ballistic Kevlar with Silver Anodized Chest Star',
+          desc: 'Engineered for covert maritime and nocturnal counter-terrorism operations. Eliminates high-visibility crimson stripes in favor of radar-absorbent navy ballistic plating.',
+          weave: 89, agility: 97, kinetic: 99, emp: 88,
+          image: 'images/cap_stealth_suit.png',
+          fallbackImage: 'https://static.wikia.nocookie.net/marvelcinematicuniverse/images/f/fe/CATWS_Cap_Render.png',
+          gear: ['Matte-Tinted Shield', 'HALO Dorsal Mount', 'EMP Lock-Breakers', 'Wrist Forensics']
+        },
+        vintage: {
+          name: 'WWII SSR Field Combat Uniform',
+          era: '1943 // EUROPEAN THEATER (HOWLING COMMANDOS)',
+          material: 'Reinforced Olive/Navy Canvas, Treated Leather & Steel Buckle Harness',
+          desc: "Designed by Howard Stark following Steve's liberation of 400 Allied POWs at Krausberg. Trades theatrical USO fabric for riveted leather shoulder pauldrons and combat gear.",
+          weave: 76, agility: 85, kinetic: 74, emp: 58,
+          image: 'images/cap_ww2_suit.png',
+          fallbackImage: 'https://static.wikia.nocookie.net/marvelcinematicuniverse/images/0/06/First_Uniform.png',
+          gear: ['Vibranium Prototype Shield', 'Colt M1911A1 Sidearm', 'SSR Field Compass', 'Grapple Hook']
+        },
+        avengers: {
+          name: 'S.H.I.E.L.D. Avengers Initiative Uniform',
+          era: '2012 // BATTLE OF NEW YORK',
+          material: 'Nomex-Kevlar Tri-Weave with Integrated Comms Mesh',
+          desc: 'Created by Phil Coulson and S.H.I.E.L.D. R&D to unite wartime symbolism with modern ballistic polymer fabrics during the Chitauri invasion of Manhattan.',
+          weave: 86, agility: 92, kinetic: 68, emp: 82,
+          image: 'images/cap_aou_suit.png',
+          fallbackImage: 'https://static.wikia.nocookie.net/marvelcinematicuniverse/images/b/b0/CaptainAmerica-001-AvengersAOU.png',
+          gear: ['Vibranium Shield', 'Sub-dermal Earbud Comms', 'Chitauri Energy Coating', 'Smoke Canisters']
+        }
+      };
+
+      let activeSuitKey = 'endgame';
+
+      function renderSuitEmblem(suit) {
+        return `
+          <svg viewBox="0 0 200 200" class="w-40 h-40 drop-shadow-[0_0_25px_rgba(56,189,248,0.35)]">
+            <defs>
+              <pattern id="scalePat" width="16" height="16" patternUnits="userSpaceOnUse">
+                <path d="M0 8 Q8 16 16 8 M8 0 Q16 8 8 16" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.2"/>
+              </pattern>
+            </defs>
+            <path d="M35,35 L70,20 L130,20 L165,35 L180,80 L155,175 L45,175 L20,80 Z" fill="${suit.primaryColor}" stroke="#94a3b8" stroke-width="3"/>
+            ${suit.isScales ? '<path d="M35,35 L70,20 L130,20 L165,35 L180,80 L155,110 L45,110 L20,80 Z" fill="url(#scalePat)"/>' : ''}
+            <path d="M52,26 L68,75 M148,26 L132,75" stroke="#cbd5e1" stroke-width="6" stroke-linecap="round"/>
+            <rect x="52" y="128" width="96" height="38" rx="6" fill="#f1f5f9" opacity="${suit.primaryColor === '#0f172a' ? '0.15' : '0.9'}"/>
+            <rect x="62" y="128" width="16" height="38" fill="${suit.secondaryColor}"/>
+            <rect x="92" y="128" width="16" height="38" fill="${suit.secondaryColor}"/>
+            <rect x="122" y="128" width="16" height="38" fill="${suit.secondaryColor}"/>
+            <polygon points="100,48 109,74 136,74 114,90 122,116 100,100 78,116 86,90 64,74 91,74" fill="#f8fafc" stroke="${suit.secondaryColor}" stroke-width="2"/>
+          </svg>
+        `;
+      }
+
+      function updateSuitView(key) {
+        activeSuitKey = key;
+        const s = suitMatrix[key];
+        document.getElementById('suitName').textContent = s.name;
+        document.getElementById('suitEraTag').textContent = s.era;
+        document.getElementById('suitMaterial').textContent = s.material;
+        document.getElementById('suitDesc').textContent = s.desc;
+
+        // Smoothly swap Steve Rogers portrait with suit
+        const portraitImg = document.getElementById('steveRogersPortraitImg');
+        const suitTag = document.getElementById('portraitSuitNameTag');
+        if (suitTag) suitTag.textContent = s.name.split(' ')[0] + ' ' + (s.name.split(' ')[1] || '');
+
+        if (portraitImg) {
+          portraitImg.style.opacity = '0';
+          portraitImg.style.transform = 'scale(0.92)';
+          setTimeout(() => {
+            portraitImg.src = s.image;
+            portraitImg.onerror = () => { portraitImg.src = s.fallbackImage; };
+            portraitImg.style.opacity = '1';
+            portraitImg.style.transform = 'scale(1)';
+          }, 180);
+        }
+
+        // Update animated stat bars
+        document.getElementById('statWeaveVal').textContent = s.weave + '%';
+        document.getElementById('statWeaveBar').style.width = s.weave + '%';
+        document.getElementById('statAgilityVal').textContent = s.agility + '%';
+        document.getElementById('statAgilityBar').style.width = s.agility + '%';
+        document.getElementById('statKineticVal').textContent = s.kinetic + '%';
+        document.getElementById('statKineticBar').style.width = s.kinetic + '%';
+        document.getElementById('statEmpVal').textContent = s.emp + '%';
+        document.getElementById('statEmpBar').style.width = s.emp + '%';
+
+        // Update Gear pills
+        const gearCont = document.getElementById('suitGearContainer');
+        gearCont.innerHTML = s.gear.map(g => `<span class="text-xs font-mono-tech px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">${g}</span>`).join('');
+
+        // Update tab buttons active state
+        document.querySelectorAll('.suit-select-btn').forEach(btn => {
+          if (btn.getAttribute('data-key') === key) {
+            btn.className = 'suit-select-btn px-3 py-1.5 rounded-lg text-xs font-mono-tech uppercase bg-blue-600 text-white font-bold shadow-lg shadow-blue-600/30';
+          } else {
+            btn.className = 'suit-select-btn px-3 py-1.5 rounded-lg text-xs font-mono-tech uppercase bg-slate-900 text-slate-400 border border-slate-800 hover:text-white';
+          }
+        });
+      }
+
+      // Populate Suit Select Buttons
+      const suitBtnCont = document.getElementById('suitButtonsContainer');
+      suitBtnCont.innerHTML = '';
+      Object.keys(suitMatrix).forEach(k => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'suit-select-btn px-3 py-1.5 rounded-lg text-xs font-mono-tech uppercase';
+        btn.setAttribute('data-key', k);
+        btn.textContent = suitMatrix[k].name.split(' ')[0];
+        btn.addEventListener('click', () => {
+          playSfx('click');
+          updateSuitView(k);
+        });
+        suitBtnCont.appendChild(btn);
+      });
+      updateSuitView('endgame');
+
+      document.getElementById('equipSuitBtn').addEventListener('click', () => {
+        playSfx('assemble');
+        showToast('COMBAT LOADOUT EQUIPPED', `${suitMatrix[activeSuitKey].name} initialized across tactical portal.`);
+      });
+
+
+      // ===============================================================
+      // F. KINETIC LAB BALLISTIC COLLISION SIMULATOR
+      // ===============================================================
+      const simCanvas = document.getElementById('kineticSimCanvas');
+      const sCtx = simCanvas.getContext('2d');
+      const velSlider = document.getElementById('velSlider');
+      const massSlider = document.getElementById('massSlider');
+      const angleSlider = document.getElementById('angleSlider');
+      let projectile = { active: false, progress: 0 };
+      let waveRings = [];
+
+      function updateCalculations() {
+        const v = Number(velSlider.value);
+        const m = Number(massSlider.value);
+        const a = Number(angleSlider.value);
+
+        document.getElementById('velLabel').textContent = v.toLocaleString() + ' m/s';
+        document.getElementById('massLabel').textContent = m.toFixed(1) + ' kg';
+        document.getElementById('angleLabel').textContent = a + '°';
+
+        const joules = 0.5 * m * v * v;
+        const mj = joules / 1e6;
+        document.getElementById('outEnergy').textContent = mj >= 1 ? mj.toFixed(1) + ' MJ' : (joules / 1000).toFixed(1) + ' kJ';
+        document.getElementById('outAbsorption').textContent = Math.max(99.85, 99.98 - (mj / 25000)).toFixed(2) + '%';
+        const db = Math.min(194, Math.round(115 + Math.log10(Math.max(1, joules)) * 7.2));
+        document.getElementById('outDecibels').textContent = db + ' dB';
+        document.getElementById('outRicochet').textContent = `${180 - a}° (${Math.round(v * 0.99).toLocaleString()} m/s)`;
+      }
+
+      [velSlider, massSlider, angleSlider].forEach(slider => {
+        slider.addEventListener('input', updateCalculations);
+      });
+
+      document.getElementById('threatPresetSelect').addEventListener('change', (e) => {
+        const presets = {
+          bullet: { v: 400, m: 2, a: 25 },
+          hydra: { v: 1450, m: 12, a: 40 },
+          repulsor: { v: 2600, m: 24, a: 30 },
+          mjolnir: { v: 3800, m: 42, a: 35 },
+          thanos: { v: 4600, m: 85, a: 50 }
+        };
+        const p = presets[e.target.value];
+        if (p) {
+          velSlider.value = p.v;
+          massSlider.value = p.m;
+          angleSlider.value = p.a;
+          updateCalculations();
+          playSfx('click');
+        }
+      });
+      updateCalculations();
+
+      document.getElementById('fireImpactBtn').addEventListener('click', () => {
+        if (projectile.active) return;
+        projectile = { active: true, progress: 0 };
+        playSfx('click');
+      });
+
+            // 3D Perspective Kinetic Impact Arena Simulation
+      let kineticSparks = [];
+      let screenShake = 0;
+
+      function project3D(x, y, z) {
+        const fov = 320;
+        const pz = z + 360;
+        const scale = fov / pz;
+        return {
+          x: simCanvas.width * 0.5 + x * scale,
+          y: simCanvas.height * 0.5 + y * scale,
+          scale
+        };
+      }
+
+      function loopKineticSim() {
+        sCtx.clearRect(0, 0, simCanvas.width, simCanvas.height);
+
+        // Apply screen recoil shake on impact
+        sCtx.save();
+        if (screenShake > 0) {
+          const sx = (Math.random() - 0.5) * screenShake;
+          const sy = (Math.random() - 0.5) * screenShake;
+          sCtx.translate(sx, sy);
+          screenShake *= 0.88;
+          if (screenShake < 0.2) screenShake = 0;
+        }
+
+        // Draw 3D Perspective Gridlines on floor
+        sCtx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+        sCtx.lineWidth = 1;
+        for (let gz = 50; gz <= 350; gz += 50) {
+          const p1 = project3D(-280, 80, gz);
+          const p2 = project3D(280, 80, gz);
+          sCtx.beginPath();
+          sCtx.moveTo(p1.x, p1.y);
+          sCtx.lineTo(p2.x, p2.y);
+          sCtx.stroke();
+        }
+        for (let gx = -280; gx <= 280; gx += 70) {
+          const p1 = project3D(gx, 80, 50);
+          const p2 = project3D(gx, 80, 350);
+          sCtx.beginPath();
+          sCtx.moveTo(p1.x, p1.y);
+          sCtx.lineTo(p2.x, p2.y);
+          sCtx.stroke();
+        }
+
+        // 3D Shield Target at coordinate (110, -10, 80)
+        const shieldCoord = { x: 110, y: -10, z: 80 };
+        const sp = project3D(shieldCoord.x, shieldCoord.y, shieldCoord.z);
+
+        // Draw 3D Angled Shield Disc
+        sCtx.save();
+        sCtx.translate(sp.x, sp.y);
+        sCtx.scale(sp.scale, sp.scale * 0.88); // 3D oblique tilt
+
+        // Outer red
+        sCtx.fillStyle = '#ef4444';
+        sCtx.beginPath();
+        sCtx.arc(0, 0, 75, 0, Math.PI * 2);
+        sCtx.fill();
+        sCtx.strokeStyle = '#38bdf8';
+        sCtx.lineWidth = 2;
+        sCtx.stroke();
+
+        // Silver
+        sCtx.fillStyle = '#f8fafc';
+        sCtx.beginPath();
+        sCtx.arc(0, 0, 55, 0, Math.PI * 2);
+        sCtx.fill();
+
+        // Inner red
+        sCtx.fillStyle = '#dc2626';
+        sCtx.beginPath();
+        sCtx.arc(0, 0, 38, 0, Math.PI * 2);
+        sCtx.fill();
+
+        // Blue center
+        sCtx.fillStyle = '#0284c7';
+        sCtx.beginPath();
+        sCtx.arc(0, 0, 22, 0, Math.PI * 2);
+        sCtx.fill();
+
+        // Star
+        sCtx.fillStyle = '#ffffff';
+        sCtx.font = 'bold 16px sans-serif';
+        sCtx.textAlign = 'center';
+        sCtx.textBaseline = 'middle';
+        sCtx.fillText('★', 0, 0);
+        sCtx.restore();
+
+        // 3D Projectile Trajectory in flight
+        if (projectile.active) {
+          projectile.progress += 0.058;
+          const start = { x: -260, y: 55, z: 280 };
+          const curX = start.x + (shieldCoord.x - start.x) * projectile.progress;
+          const curY = start.y + (shieldCoord.y - start.y) * projectile.progress;
+          const curZ = start.z + (shieldCoord.z - start.z) * projectile.progress;
+          const curP = project3D(curX, curY, curZ);
+
+          // 3D projectile glow
+          sCtx.save();
+          sCtx.fillStyle = '#ef4444';
+          sCtx.shadowColor = '#ef4444';
+          sCtx.shadowBlur = 15;
+          sCtx.beginPath();
+          sCtx.arc(curP.x, curP.y, 6 * curP.scale, 0, Math.PI * 2);
+          sCtx.fill();
+
+          // Plasma trail
+          sCtx.strokeStyle = 'rgba(239, 68, 68, 0.7)';
+          sCtx.lineWidth = 3.5 * curP.scale;
+          const prevP = project3D(curX - 35, curY + 6, curZ + 25);
+          sCtx.beginPath();
+          sCtx.moveTo(prevP.x, prevP.y);
+          sCtx.lineTo(curP.x, curP.y);
+          sCtx.stroke();
+          sCtx.restore();
+
+          if (projectile.progress >= 1) {
+            projectile.active = false;
+            playSfx('clang');
+            screenShake = 14;
+
+            // Spawn 3D expanding shockwaves
+            for (let i = 0; i < 4; i++) {
+              waveRings.push({ x: sp.x, y: sp.y, r: 12 + i * 8, maxR: 180 + i * 25, alpha: 0.95, color: i % 2 === 0 ? '#38bdf8' : '#0284c7' });
+            }
+
+            // Spawn 80+ 3D spark particles
+            for (let i = 0; i < 75; i++) {
+              kineticSparks.push({
+                x: shieldCoord.x,
+                y: shieldCoord.y,
+                z: shieldCoord.z,
+                vx: (Math.random() - 0.7) * 14,
+                vy: (Math.random() - 0.5) * 12,
+                vz: (Math.random() - 0.2) * 12,
+                alpha: 1,
+                size: Math.random() * 2.5 + 1.2
+              });
+            }
+          }
+        }
+
+        // Render expanding 3D shockwaves
+        for (let i = waveRings.length - 1; i >= 0; i--) {
+          const r = waveRings[i];
+          r.r += 4.5;
+          r.alpha -= 0.022;
+          if (r.alpha <= 0 || r.r >= r.maxR) {
+            waveRings.splice(i, 1);
+            continue;
+          }
+          sCtx.save();
+          sCtx.globalAlpha = Math.max(0, r.alpha);
+          sCtx.strokeStyle = r.color;
+          sCtx.lineWidth = 2.4;
+          sCtx.shadowColor = r.color;
+          sCtx.shadowBlur = 14;
+          sCtx.beginPath();
+          sCtx.ellipse(r.x, r.y, r.r, r.r * 0.75, 0, 0, Math.PI * 2);
+          sCtx.stroke();
+          sCtx.restore();
+        }
+
+        // Render 3D Sparks with gravity & perspective
+        for (let i = kineticSparks.length - 1; i >= 0; i--) {
+          const spk = kineticSparks[i];
+          spk.x += spk.vx;
+          spk.y += spk.vy;
+          spk.z += spk.vz;
+          spk.vy += 0.35; // gravity
+          spk.alpha -= 0.024;
+
+          if (spk.alpha <= 0) {
+            kineticSparks.splice(i, 1);
+            continue;
+          }
+
+          const pt = project3D(spk.x, spk.y, spk.z);
+          sCtx.save();
+          sCtx.globalAlpha = Math.max(0, spk.alpha);
+          sCtx.fillStyle = spk.vz > 0 ? '#38bdf8' : '#ef4444';
+          sCtx.beginPath();
+          sCtx.arc(pt.x, pt.y, spk.size * pt.scale, 0, Math.PI * 2);
+          sCtx.fill();
+          sCtx.restore();
+        }
+
+        sCtx.restore();
+        requestAnimationFrame(loopKineticSim);
+      }
+      loopKineticSim();
+      loopKineticSim();
+
+
+      // ===============================================================
+      // G. DECLASSIFIED DOSSIERS & GLITCH DECODER TEXT EFFECT
+      // ===============================================================
+      const dossiers = [
+        {
+          id: 'rebirth-1943',
+          code: 'FILE #SSR-1943-06',
+          era: 'ww2',
+          date: 'JUNE 1943',
+          location: 'BROOKLYN, NY',
+          clearance: 'LEVEL 10',
+          title: 'Project Rebirth: Super-Soldier Transformation',
+          summary: 'Chosen by Dr. Abraham Erskine for his moral courage rather than physical size, Steve Rogers receives Cellular Vita-Ray bombardment and emerges as the Allies\' sole Super-Soldier.',
+          tactical: 'Subject demonstrated immediate 400% metabolic acceleration, pursuing assassin Heinz Kruger across submarine docks.',
+          operatives: ['Steve Rogers', 'Dr. Erskine', 'Peggy Carter', 'Howard Stark']
+        },
+        {
+          id: 'krausberg-1943',
+          code: 'FILE #SSR-1943-11',
+          era: 'ww2',
+          date: 'NOVEMBER 1943',
+          location: 'KRAUSBERG, AUSTRIA',
+          clearance: 'LEVEL 8',
+          title: 'Liberation of HYDRA Heavy Munitions Facility',
+          summary: 'Infiltrating behind enemy lines with a prototype circular Vibranium shield, Rogers liberates 400 Allied POWs including Sgt. Bucky Barnes.',
+          tactical: 'Complete sabotage of Tesseract energy cartridge line and recovery of heavy weaponry blueprints.',
+          operatives: ['Steve Rogers', 'Bucky Barnes', 'Peggy Carter', 'Dum Dum Dugan']
+        },
+        {
+          id: 'valkyrie-1945',
+          code: 'FILE #SSR-1945-03',
+          era: 'ww2',
+          date: 'MARCH 1945',
+          location: 'ARCTIC CIRCLE',
+          clearance: 'LEVEL 10',
+          title: 'Aboard the Valkyrie: The Final WWII Sortie',
+          summary: 'To prevent Red Skull\'s flying wing bomber from incinerating New York City, Rogers ditches the Valkyrie into Arctic ice shelf.',
+          tactical: 'Subject remained in cellular cryostasis for 66 years until S.H.I.E.L.D. recovery team located the cockpit.',
+          operatives: ['Steve Rogers', 'Peggy Carter', 'Chester Phillips']
+        },
+        {
+          id: 'chitauri-2012',
+          code: 'FILE #SHIELD-2012-05',
+          era: 'shield',
+          date: 'MAY 2012',
+          location: 'MANHATTAN, NY',
+          clearance: 'LEVEL 9',
+          title: 'Battle of New York: Avengers Assemble',
+          summary: 'Assuming tactical field command, Captain America coordinates ground evacuation and commands Avengers team against Loki\'s Leviathan fleet.',
+          tactical: 'Established perimeter containment around Stark Tower portal until nuclear detonation neutralization.',
+          operatives: ['Steve Rogers', 'Tony Stark', 'Natasha Romanoff', 'Thor', 'Clint Barton', 'Bruce Banner']
+        },
+        {
+          id: 'insight-2014',
+          code: 'FILE #SHIELD-2014-04',
+          era: 'shield',
+          date: 'APRIL 2014',
+          location: 'WASHINGTON, D.C.',
+          clearance: 'LEVEL 10',
+          title: 'Operation Insight Takedown (Triskelion)',
+          summary: 'Uncovering decades of Hydra infiltration within S.H.I.E.L.D., Rogers, Romanoff, and Wilson disable 3 Project Insight Helicarriers.',
+          tactical: 'Targeting blade override deployed on all 3 carriers; Bucky Barnes extracted from Potomac river.',
+          operatives: ['Steve Rogers', 'Natasha Romanoff', 'Sam Wilson', 'Nick Fury']
+        },
+        {
+          id: 'endgame-2023',
+          code: 'FILE #AVG-2023-10',
+          era: 'avengers',
+          date: 'OCTOBER 2023',
+          location: 'UPSTATE NEW YORK',
+          clearance: 'LEVEL 10',
+          title: 'Battle of Earth & Quantum Time Heist',
+          summary: 'Wielding both his shattered Vibranium shield and Thor\'s enchanted hammer Mjolnir, Rogers coordinates the defeat of Thanos.',
+          tactical: 'Return of all six Infinity Stones across the timeline; passing of shield mantle to Sam Wilson.',
+          operatives: ['Steve Rogers', 'Sam Wilson', 'Bucky Barnes', 'Tony Stark', 'Thor']
+        }
+      ];
+
+      // Glitch / Scramble Text Effect Utility
+      function scrambleText(element, finalText, duration = 650) {
+        const glyphs = '01!#$@%&*<>/\_?~ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const start = Date.now();
+        const originalText = finalText;
+
+        function update() {
+          const elapsed = Date.now() - start;
+          const progress = Math.min(1, elapsed / duration);
+          const charsRevealed = Math.floor(progress * originalText.length);
+
+          let output = originalText.substring(0, charsRevealed);
+          for (let i = charsRevealed; i < originalText.length; i++) {
+            if (originalText[i] === ' ') output += ' ';
+            else output += glyphs[Math.floor(Math.random() * glyphs.length)];
+          }
+          element.textContent = output;
+
+          if (progress < 1) requestAnimationFrame(update);
+        }
+        update();
+      }
+
+      function renderDossiers(filter = 'all', search = '') {
+        const container = document.getElementById('dossiersContainer');
+        container.innerHTML = '';
+
+        const filtered = dossiers.filter(d => {
+          const matchEra = (filter === 'all') || (d.era === filter);
+          const matchSearch = d.title.toLowerCase().includes(search.toLowerCase()) ||
+                              d.summary.toLowerCase().includes(search.toLowerCase()) ||
+                              d.operatives.some(op => op.toLowerCase().includes(search.toLowerCase()));
+          return matchEra && matchSearch;
+        });
+
+        filtered.forEach(d => {
+          const card = document.createElement('div');
+          card.className = 'hud-panel hud-brackets rounded-2xl p-5 cursor-pointer flex flex-col justify-between space-y-4 hover:-translate-y-1.5 transition-transform duration-200';
+          card.innerHTML = `
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-mono-tech text-cyan-300 bg-cyan-950/70 border border-cyan-800 px-2 py-0.5 rounded font-bold">${d.code}</span>
+                <span class="text-[10px] font-mono-tech text-rose-400 font-bold">${d.clearance}</span>
+              </div>
+              <div class="text-[10px] font-mono-tech text-slate-400 flex items-center justify-between">
+                <span>${d.date}</span>
+                <span>//</span>
+                <span>${d.location}</span>
+              </div>
+              <h3 class="font-display font-bold text-base text-white dossier-title">${d.title}</h3>
+              <p class="text-xs text-slate-300 leading-relaxed line-clamp-3">${d.summary}</p>
+            </div>
+            <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs font-mono-tech text-cyan-400">
+              <span class="flex items-center gap-1">Access Intel &rarr;</span>
+              <span class="text-[10px] text-slate-500">${d.operatives.length} Operatives</span>
+            </div>
+          `;
+
+          // Glitch text on hover
+          const titleEl = card.querySelector('.dossier-title');
+          card.addEventListener('mouseenter', () => {
+            scrambleText(titleEl, d.title, 400);
+          });
+
+          // Open classified modal
+          card.addEventListener('click', () => {
+            playSfx('click');
+            openModal(d);
+          });
+
+          container.appendChild(card);
+        });
+      }
+
+      function openModal(d) {
+        document.getElementById('modalCode').textContent = d.code;
+        document.getElementById('modalClearance').textContent = `CLASSIFIED // ${d.clearance}`;
+        document.getElementById('modalTitle').textContent = d.title;
+        document.getElementById('modalDateLoc').textContent = `${d.date} • ${d.location}`;
+        document.getElementById('modalSummary').textContent = d.summary;
+        document.getElementById('modalTactical').textContent = d.tactical;
+        const opCont = document.getElementById('modalOperatives');
+        opCont.innerHTML = d.operatives.map(op => `<span class="text-xs font-mono-tech px-2.5 py-1 rounded bg-slate-900 text-cyan-300 border border-slate-700">${op}</span>`).join('');
+        
+        if (window.lenis) window.lenis.stop();
+        const modal = document.getElementById('dossierModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+
+      document.getElementById('closeModalBtn').addEventListener('click', () => {
+        playSfx('click');
+        if (window.lenis) window.lenis.start();
+        const modal = document.getElementById('dossierModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      });
+
+      // Filter tabs event
+      document.querySelectorAll('.dossier-filter-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          playSfx('click');
+          document.querySelectorAll('.dossier-filter-btn').forEach(b => {
+            b.className = 'dossier-filter-btn px-3 py-1.5 rounded-lg bg-slate-900 text-slate-400 border border-slate-800 hover:text-white';
+          });
+          btn.className = 'dossier-filter-btn px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold';
+          renderDossiers(btn.getAttribute('data-era'), document.getElementById('dossierSearchInput').value);
+        });
+      });
+
+      // Search input event
+      document.getElementById('dossierSearchInput').addEventListener('input', (e) => {
+        renderDossiers('all', e.target.value);
+      });
+      renderDossiers('all', '');
+      init3DCardTilt();
+
+      // ===============================================================
+      // H. UNIVERSAL 3D CARD TILT, DYNAMIC GLARE & GSAP PERSPECTIVE
+      // ===============================================================
+      function init3DCardTilt() {
+        document.querySelectorAll('.hud-panel').forEach(card => {
+          if (card.dataset.tiltInitialized) return;
+          card.dataset.tiltInitialized = 'true';
+
+          let glare = card.querySelector('.card-3d-glare');
+          if (!glare) {
+            glare = document.createElement('div');
+            glare.className = 'card-3d-glare';
+            card.appendChild(glare);
+          }
+
+          card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const cx = rect.width / 2;
+            const cy = rect.height / 2;
+            const rotX = -((y - cy) / cy) * 9.5;
+            const rotY = ((x - cx) / cx) * 9.5;
+
+            card.style.transform = `perspective(1000px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) scale3d(1.02, 1.02, 1.02)`;
+            glare.style.background = `radial-gradient(circle at ${((x / rect.width) * 100).toFixed(1)}% ${((y / rect.height) * 100).toFixed(1)}%, rgba(56, 189, 248, 0.28), transparent 60%)`;
+            glare.style.opacity = '1';
+          });
+
+          card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+            glare.style.opacity = '0';
+          });
+        });
+      }
+      init3DCardTilt();
+
+      // GSAP 3D Perspective Scroll Reveal on Sections
+      if (window.gsap && window.ScrollTrigger) {
+        ['#section-command', '#section-armory', '#section-kinetic', '#section-dossiers'].forEach(secId => {
+          const sec = document.querySelector(secId);
+          if (sec) {
+            gsap.fromTo(sec,
+              { rotateX: 12, y: 40, opacity: 0, transformPerspective: 1000 },
+              {
+                rotateX: 0, y: 0, opacity: 1, duration: 1.0, ease: 'power2.out',
+                scrollTrigger: {
+                  trigger: sec,
+                  start: 'top 85%',
+                  toggleActions: 'play none none none'
+                }
+              }
+            );
+          }
+        });
+      }
+
+
+            // Tactical quotes cycle
+      const quotes = [
+        { text: '"I can do this all day."', src: '— Brooklyn Alleyway, 1943 / Avengers Compound, 2023' },
+        { text: '"The price of freedom is high, it always has been. And it\'s a price I\'m willing to pay."', src: '— Triskelion Broadcast, Washington D.C., 2014' },
+        { text: '"I don\'t like bullies; I don\'t care where they\'re from."', src: '— Project Rebirth Evaluation, 1943' },
+        { text: '"Compromise where you can. Where you can\'t, don\'t."', src: '— London Strategic Briefing, 2016' },
+        { text: '"Avengers... Assemble."', src: '— Battle of Earth, 2023' }
+      ];
+      let quoteIdx = 0;
+      document.getElementById('quoteCard').addEventListener('click', () => {
+        playSfx('click');
+        quoteIdx = (quoteIdx + 1) % quotes.length;
+        document.getElementById('quoteText').textContent = quotes[quoteIdx].text;
+        document.getElementById('quoteSource').textContent = quotes[quoteIdx].src;
+        scrambleText(document.getElementById('quoteText'), quotes[quoteIdx].text, 450);
+      });
+
+    })();
+  </script>
+</body>
+</html>
